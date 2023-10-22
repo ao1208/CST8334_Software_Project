@@ -7,11 +7,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root {
+  --transition: 0.3s ease-in-out all;
+}
+
 .login-container {
   background-color: #fafaf5;
   margin: 1rem;
   border: 2px solid #e6e6e6;
   border-radius: 1rem;
+}
+
+.dashboard-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.table-striped tbody tr:nth-child(odd) * {
+  background-color: #f7f6fe !important;
 }
 
 @media (min-width: 768px) {
@@ -25,5 +39,10 @@ body {
 
   .icon-container {
     width: 50% !important;
+  }
+
+  .dashboard-container {
+    max-width: 1440px;
+    padding: 2rem 3rem;
   }
 }

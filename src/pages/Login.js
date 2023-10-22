@@ -2,25 +2,61 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { AiOutlineLock } from "react-icons/ai";
 import { BsPerson } from "react-icons/bs";
-
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 const Login = () => {
+  const [user, setUser] = useState({ email: "", password: "" });
+
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setUser({ ...user, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { email, password } = user;
+    if (!email) {
+      toast.error("Please enter your user email!");
+      return;
+    }
+    if (!password) {
+      toast.error("Please enter your password!");
+      return;
+    }
+    // check the user role(sales or admin) need to implement here, decided to whether sales page or admin page, and need to check whether user email and password is correct
+    navigate("/sales_performance");
+  };
+
   return (
     <Wrapper>
       <div className="login-container">
-        {/* backend need to check the current user is admin or normal user */}
-        <form action="#">
+        <form onSubmit={handleSubmit}>
           <h1> Sales Management System</h1>
           <div className="icon-container">
             <span className="icon">
               <BsPerson />
             </span>
-            <input type="text" placeholder="username" />
+            <input
+              type="text"
+              name="email"
+              placeholder="username"
+              onChange={handleChange}
+            />
           </div>
           <div className="icon-container">
             <span className="icon">
               <AiOutlineLock />
             </span>
-            <input type="password" placeholder="password" />
+            <input
+              type="password"
+              name="password"
+              placeholder="password"
+              onChange={handleChange}
+            />
             <div className="link-container">
               <Link to="/forgot_pwd">Forgot Password?</Link>
             </div>

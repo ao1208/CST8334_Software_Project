@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { RequestEmail, Verification, ResetPwd } from "../components";
 const ForgotPwd = () => {
-  const [requestSuccess, setRequestSuccess] = useState(false);
-  const [verifySuccess, setVerifySuccess] = useState(false);
+  const [requestSuccess, setRequestSuccess] = useState(true);
+  const [verifySuccess, setVerifySuccess] = useState(true);
   const [email, setEmail] = useState("test@goopter.com");
   return (
     <>

@@ -1,19 +1,78 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+import { FaRegCircleXmark } from "react-icons/fa6";
 import styled from "styled-components";
+
 const ResetPwd = ({ setRequestSuccess, setVerifySuccess }) => {
   const [isError, setIsError] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [isLengthValid, setLengthValid] = useState(false);
+  const [hasUpperCase, setHasUpperCase] = useState(false);
+  const [hasLowerCase, setHasLowerCase] = useState(false);
+  const [hasSpecialCharacterOrNum, setHasSpecialCharacterOrNum] =
+    useState(false);
+  const [pwd, setPwd] = useState("");
+  const [isPwdMatch, setIsPwdMatch] = useState(true);
+
+  const handlePwdInput = (event) => {
+    const password = event.target.value;
+
+    // Check each requirement and update the state variables
+    setLengthValid(password.length >= 8);
+    setHasUpperCase(/[A-Z]/.test(password));
+    setHasLowerCase(/[a-z]/.test(password));
+    setHasSpecialCharacterOrNum(/[0-9!@#$%^&*]/.test(password));
+    setPwd(password);
+  };
+
+  const handleRePwdInput = (event) => {
+    setIsPwdMatch(pwd == event.target.value);
+  };
   return (
     <Wrapper>
       {!updateSuccess && (
         <div className="login-container">
           <h2>New credentials</h2>
           <div className="pwd-rules">
-            <p>Password must be at least 8 characters long.</p>
-            <p>Password must contain at least one upper case letter.</p>
-            <p>Password must contain at least one lower case letter.</p>
             <p>
+              {isLengthValid ? (
+                <IoMdCheckmarkCircleOutline className="check-mark" />
+              ) : (
+                <FaRegCircleXmark
+                  style={{ color: "#ee0004", marginRight: "0.25rem" }}
+                />
+              )}
+              Password must be at least 8 characters long.
+            </p>
+            <p>
+              {hasUpperCase ? (
+                <IoMdCheckmarkCircleOutline className="check-mark" />
+              ) : (
+                <FaRegCircleXmark
+                  style={{ color: "#ee0004", marginRight: "0.25rem" }}
+                />
+              )}
+              Password must contain at least one upper case letter.
+            </p>
+            <p>
+              {hasLowerCase ? (
+                <IoMdCheckmarkCircleOutline className="check-mark" />
+              ) : (
+                <FaRegCircleXmark
+                  style={{ color: "#ee0004", marginRight: "0.25rem" }}
+                />
+              )}
+              Password must contain at least one lower case letter.
+            </p>
+            <p>
+              {hasSpecialCharacterOrNum ? (
+                <IoMdCheckmarkCircleOutline className="check-mark" />
+              ) : (
+                <FaRegCircleXmark
+                  style={{ color: "#ee0004", marginRight: "0.25rem" }}
+                />
+              )}
               Password must contain at least one number or special character.
             </p>
           </div>
@@ -31,6 +90,7 @@ const ResetPwd = ({ setRequestSuccess, setVerifySuccess }) => {
                 <input
                   type="password"
                   id="pwd"
+                  onChange={handlePwdInput}
                   style={{ borderColor: isError ? "#ee0004" : null }}
                 />
                 {isError && (
@@ -52,12 +112,16 @@ const ResetPwd = ({ setRequestSuccess, setVerifySuccess }) => {
                 <input
                   type="password"
                   id="re-pwd"
+                  onChange={handleRePwdInput}
                   style={{ borderColor: isError ? "#ee0004" : null }}
                 />
                 {isError && (
                   <span className="error-sign">
                     <span>!</span>
                   </span>
+                )}
+                {!isPwdMatch && (
+                  <p className="error">Password doesn't match.</p>
                 )}
                 {isError && <p className="error">This is required field.</p>}
               </div>
@@ -107,7 +171,13 @@ const Wrapper = styled.section`
 
   .pwd-rules {
     color: #3d3d3d;
-    margin-left: 4rem;
+    margin-left: 2rem;
+  }
+
+  .check-mark {
+    color: #06c552;
+    font-size: 1.25rem;
+    margin-right: 0.25rem;
   }
 
   form {

@@ -8,9 +8,7 @@ const RequestEmail = ({ setRequestSuccess, setEmail }) => {
     <Wrapper>
       <div className="login-container">
         <h2>forgot password</h2>
-        <p>
-          Provide your account email for which you want to resent your password
-        </p>
+        <p>Provide your account email to resent your password</p>
         {/* verify email need to implement, 
         if email not verify successfully, setIsError to true. 
 
