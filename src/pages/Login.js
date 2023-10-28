@@ -28,7 +28,7 @@ const Login = () => {
       return;
     }
     // check the user role(sales or admin) need to implement here, decided to whether sales page or admin page, and need to check whether user email and password is correct
-    navigate("/sales_performance");
+    navigate("/admin/dashboard");
   };
 
   return (

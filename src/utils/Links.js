@@ -15,21 +15,43 @@ export const admin_nav_links = [
   {
     id: 1,
     text: "Dashboard",
-    path: "/dashboard",
+    path: "/admin/dashboard",
   },
   {
     id: 2,
     text: "User Management",
-    path: "/dashboard/all-jobs",
+    children: [
+      {
+        id: 3,
+        text: "User Management",
+        path: "/admin/user_management",
+      },
+      {
+        id: 4,
+        text: "Mapping Management",
+        path: "/admin/mapping_management",
+      },
+    ],
   },
   {
-    id: 3,
-    text: "Sales management",
-    path: "/dashboard/add-job",
+    id: 5,
+    text: "Sales Management",
+    children: [
+      {
+        id: 6,
+        text: "Sales Performance",
+        path: "/admin/sales_performance",
+      },
+      {
+        id: 7,
+        text: "Sales Payout",
+        path: "/admin/sales_payout",
+      },
+    ],
   },
   {
-    id: 4,
+    id: 8,
     text: "Data Management",
-    path: "/dashboard/profile",
+    path: "/admin/data_management",
   },
 ];

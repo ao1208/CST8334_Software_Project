@@ -2,19 +2,26 @@ import styled from "styled-components";
 import { BiSearch } from "react-icons/bi";
 import { VscCalendar } from "react-icons/vsc";
 import { useState } from "react";
+import { dateRange } from "../utils/DateRange";
+import Heading from "./Heading";
 
-const SalesSearch = ({ heading }) => {
+const SalesSearch = () => {
   const [selectPeriod, setSelectPeriod] = useState("");
   const [startDate, setStartDate] = useState("");
   const [end, setEndDate] = useState("");
   const [search, setSearch] = useState("");
-
+  const [dateDisabled, setDateDisabled] = useState(true);
   // filter and search function need to implement
   const handleChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
     // Update the state based on the input field's name
     if (name === "selectPeriod") {
+      if (value === "custom") {
+        setDateDisabled(false);
+      } else {
+        setDateDisabled(true);
+      }
       setSelectPeriod(value);
     } else if (name === "startDate") {
       setStartDate(value);
@@ -26,14 +33,15 @@ const SalesSearch = ({ heading }) => {
   };
   return (
     <Wrapper>
-      <h3>{heading}</h3>
       <div className="container">
         <select name="selectPeriod" onChange={handleChange}>
-          <option value="This Month">This Month</option>
-          <option value="Last Three Months">Last Three Months</option>
-          <option value="Last Half Year">Last Half Year</option>
-          <option value="This Year">This Year</option>
-          <option value="This Year">Last Year</option>
+          {dateRange.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+
+          <option value="custom">Custom Range</option>
         </select>
         <div className="date">
           <VscCalendar className="calendar-icon" />
@@ -41,6 +49,8 @@ const SalesSearch = ({ heading }) => {
             type="text"
             name="startDate"
             placeholder="Date From"
+            disabled={dateDisabled}
+            className={dateDisabled ? "" : "custom-range"}
             onChange={handleChange}
             onFocus={(e) => (e.target.type = "date")}
             onBlur={(e) => (e.target.type = "text")}
@@ -52,6 +62,8 @@ const SalesSearch = ({ heading }) => {
             type="text"
             name="endDate"
             placeholder="Date To"
+            disabled={dateDisabled}
+            className={dateDisabled ? "" : "custom-range"}
             onChange={handleChange}
             onFocus={(e) => (e.target.type = "date")}
             onBlur={(e) => (e.target.type = "text")}
@@ -67,7 +79,13 @@ const SalesSearch = ({ heading }) => {
             onChange={handleChange}
           />
         </div>
-        <button name="submit" className="search-btn">
+        <button
+          name="submit"
+          className="search-btn"
+          onClick={() => {
+            window.alert("function haven't implement");
+          }}
+        >
           search
         </button>
       </div>
@@ -97,7 +115,7 @@ const Wrapper = styled.section`
 
   .container input,
   select {
-    color: #9e9e9e;
+    color: #858585;
     height: 35px;
     border: 1px solid #9e9e9e;
     border-radius: 0.5rem;
@@ -111,6 +129,11 @@ const Wrapper = styled.section`
     align-items: center;
   }
 
+  .custom-range,
+  select {
+    color: #1c1c1c;
+    border-color: #858585;
+  }
   .search-container input {
     width: 300px;
     padding-left: 2rem;
@@ -151,7 +174,12 @@ const Wrapper = styled.section`
   @media (max-width: 820px) {
     .container {
       display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      column-gap: 1rem;
       row-gap: 1rem;
+    }
+    .search-container {
+      grid-column: span 2;
     }
 
     .search-btn,
@@ -159,6 +187,13 @@ const Wrapper = styled.section`
     select {
       width: 100%;
       margin-right: 0;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .container {
+      display: flex;
+      flex-direction: column;
     }
   }
 `;

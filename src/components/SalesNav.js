@@ -41,6 +41,7 @@ const SalesNav = () => {
 const Wrapper = styled.header`
   display: flex;
   justify-content: space-between;
+  padding: 2rem 0;
 
   .nav-links {
     display: flex;
@@ -84,7 +85,11 @@ const Wrapper = styled.header`
     font-size: 1rem;
     font-weight: 500;
   }
-
+  @media (max-width: 820px) {
+    h1 {
+      font-size: 1.75rem;
+    }
+  }
   @media (max-width: 576px) {
     display: grid;
     .nav-links {

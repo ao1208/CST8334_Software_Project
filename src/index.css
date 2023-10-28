@@ -11,6 +11,20 @@ body {
   --transition: 0.3s ease-in-out all;
 }
 
+tr {
+  height: 70px;
+  text-transform: capitalize;
+}
+
+td {
+  vertical-align: middle;
+}
+
+button {
+  border: none;
+  background-color: transparent;
+}
+
 .login-container {
   background-color: #fafaf5;
   margin: 1rem;
@@ -21,11 +35,100 @@ body {
 .dashboard-container {
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1rem;
 }
 
-.table-striped tbody tr:nth-child(odd) * {
+.center-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.vertical-center {
+  vertical-align: middle;
+}
+
+.user-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 0.5rem;
+}
+
+.role,
+.status {
+  color: #1f9254;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  text-transform: capitalize;
+  background-color: #ebf9f1;
+}
+
+.updateBtn,
+.deleteBtn {
+  color: #624de3;
+  border: none;
+  font-size: 1.5rem;
+  background-color: transparent !important;
+}
+
+.deleteBtn {
+  color: #a30d11;
+}
+
+.date {
+  position: relative;
+}
+
+.date input {
+  padding-left: 2.5rem;
+}
+
+.calendar-icon {
+  position: absolute;
+  color: #aaaaaa;
+  margin: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.btn-container {
+  display: flex;
+  grid-column: span 2;
+  justify-content: flex-end;
+}
+.cancelBtn,
+.saveBtn {
+  color: #624de3;
+  padding: 0.75rem 2rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-right: 3rem;
+  border: 1px solid #624de3;
+  text-transform: capitalize;
+  border-radius: 0.25rem;
+}
+
+.saveBtn {
+  color: #ffffff;
+  padding: 0.75rem 2.5rem;
+  background-color: #624de3;
+}
+
+.striped tbody tr:nth-child(odd) * {
   background-color: #f7f6fe !important;
+}
+
+.striped tbody tr:nth-child(odd) .role,
+.striped tbody tr:nth-child(odd) .status {
+  background-color: #ebf9f1 !important;
+}
+
+.striped tbody tr:nth-child(odd) .role[data-status="administrator"],
+.striped tbody tr:nth-child(odd) .status[data-status="P"] {
+  background-color: #fbe7e8 !important;
+}
+
+.striped tbody tr:nth-child(odd) .updateBtn,
+.striped tbody tr:nth-child(odd) .deleteBtn {
+  background-color: transparent !important;
 }
 
 @media (min-width: 768px) {
@@ -43,6 +146,54 @@ body {
 
   .dashboard-container {
     max-width: 1440px;
-    padding: 2rem 3rem;
+    padding: 1rem 3rem;
+  }
+}
+
+@media (max-width: 820px) {
+  tr,
+  td {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+  }
+
+  tr {
+    height: 120px;
+  }
+  .cancelBtn,
+  .saveBtn {
+    padding: 0.5rem 1.5rem;
+    margin-right: 1rem;
+  }
+
+  .saveBtn {
+    padding: 0.5rem 1.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  tr,
+  td {
+    display: grid;
+    font-size: 0.75rem;
+    grid-template-columns: auto auto auto;
+  }
+  tr {
+    height: 140px;
+    text-transform: capitalize;
+  }
+  .user-img {
+    width: 25px;
+    height: 25px;
+  }
+  .cancelBtn,
+  .saveBtn {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    margin-right: 1rem;
+  }
+
+  .saveBtn {
+    padding: 0.5rem 1.5rem;
   }
 }
