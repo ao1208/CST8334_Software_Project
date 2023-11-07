@@ -7,5 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Merchant extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'merchant_id',
+        'SCP_number',
+        'DBA_name',
+        'date_open',
+        'date_closed',
+        'account_status',
+        'sales_id',
+        'commission_percentage'
+    ];
 }

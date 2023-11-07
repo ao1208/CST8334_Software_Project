@@ -11,22 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('credit_card_transactions', function (Blueprint $table) {
+        Schema::create('commission_payout_records', function (Blueprint $table) {
             $table->id();
-            $table->date('pdate');
+            $table->date('date');
+            $table->string('sales_id');
             $table->string('merchant_id');
-            $table->double('visa_gross_volume');
-            $table->double('visa_transaction_fee');
-            $table->double('visa_commission');
-            $table->double('master_gross_volume');
-            $table->double('master_transaction_fee');
-            $table->double('master_commission');
-            $table->double('total_gross_volume');
-            $table->double('total_transaction_fee');
-            $table->double('total_commission');
+            $table->string('type');
+            $table->double('amount');
+            $table->string('comment');
             $table->timestamps();
 
             // Define the foreign key
+            $table->foreign('sales_id')
+                ->references('sales_id')
+                ->on('users');
             $table->foreign('merchant_id')
                 ->references('merchant_id')
                 ->on('merchants');
@@ -38,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('credit_card_transactions');
+        Schema::dropIfExists('commission_payout_records');
     }
 };

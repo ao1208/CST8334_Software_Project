@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleSheetController;
 /*
@@ -14,6 +15,7 @@ use App\Http\Controllers\GoogleSheetController;
 */
 
 Route::get('google-spreadsheet-api', [GoogleSheetController::class, 'download']);
+Route::get('api/test', [TestController::class, 'testAPI']);
 
 Route::get('/', function () {
     return view('welcome');
