@@ -11,6 +11,6 @@ export { default as TopSales } from "./TopSales";
 export { default as Heading } from "./Heading";
 export { default as AdminSearchContainer } from "./AdminSearchContainer";
 export { default as FormRow } from "./FormRow";
-export { default as UserManagementForm } from "./UserManagementForm";
-export { default as UserMappingForm } from "./UserMappingForm";
+// export { default as UserManagementForm } from "./UserManagementForm";
+// export { default as UserMappingForm } from "./UserMappingForm";
 export { default as CommissionPayoutForm } from "./CommissionPayoutForm";

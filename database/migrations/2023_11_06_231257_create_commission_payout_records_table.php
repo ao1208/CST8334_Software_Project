@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->date('date');
             $table->string('sales_id');
-            $table->string('merchant_id');
+            $table->string('merchant_id')->nullable();
             $table->string('type');
             $table->double('amount');
+            $table->double('balance');
             $table->string('comment');
             $table->timestamps();
 

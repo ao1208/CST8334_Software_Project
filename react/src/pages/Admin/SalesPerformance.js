@@ -2,6 +2,8 @@ import { styled } from "styled-components";
 import { Heading, SalesSearch, Pagination, AdminNav } from "../../components";
 import { salesPerformanceTableHeader } from "../../utils/TableColumnMapping";
 import { Link } from "react-router-dom";
+import {useEffect, useState} from "react";
+import axios from "axios";
 const data = [
   {
     pDate: "2023/05",
@@ -58,7 +60,25 @@ const data = [
     commission: 21.23,
   },
 ];
-const SalesPerformance = () => {
+const SalesPerformance = ({apiUrl}) => {
+
+    const [data, setPerformanceData] = useState([]);
+
+    useEffect(() => {
+        // Fetch sales performance data from the Laravel API
+        let url = 'http://127.0.0.1:8000/api/performance';
+        if (apiUrl) {
+            url = {apiUrl}
+        }
+        axios.get(url)
+            .then((response) => {
+                setPerformanceData(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching sales performances data:', error);
+            });
+    }, []);
+
   return (
     <Wrapper className="dashboard-container">
       <AdminNav />
@@ -92,17 +112,17 @@ const SalesPerformance = () => {
             {data.map((item, index) => {
               return (
                 <tr key={index}>
-                  <td>{item.pDate} </td>
-                  <td>{item.salesId}</td>
-                  <td>{item.salesName} </td>
-                  <td>{item.commissionPercent} </td>
-                  <td>{item.merchantNo} </td>
-                  <td>{item.merchantName} </td>
-                  <td>$ {item.visaGross ? item.visaGross : "--"}</td>
-                  <td>$ {item.visaTXN ? item.visaTXN : "--"}</td>
-                  <td>$ {item.masterGross ? item.masterGross : "--"}</td>
-                  <td>$ {item.masterTXN ? item.masterTXN : "--"}</td>
-                  <td>$ {item.commission ? item.commission : "--"}</td>
+                  <td>{item.pdate} </td>
+                  <td>{item.sales_id}</td>
+                  <td>{item.user_first_name + ' ' + item.user_last_name} </td>
+                  <td>{item.commission_percentage * 100} </td>
+                  <td>{item.merchant_id} </td>
+                  <td>{item.DBA_name} </td>
+                  <td>$ {item.visa_gross_volume ? item.visa_gross_volume.toLocaleString() : "--"}</td>
+                  <td>$ {item.visa_transaction_fee ? item.visa_transaction_fee.toLocaleString() : "--"}</td>
+                  <td>$ {item.master_gross_volume ? item.master_gross_volume.toLocaleString() : "--"}</td>
+                  <td>$ {item.master_transaction_fee ? item.master_transaction_fee.toLocaleString() : "--"}</td>
+                  <td>$ {item.total_commission ? item.total_commission.toLocaleString() : "--"}</td>
                 </tr>
               );
             })}

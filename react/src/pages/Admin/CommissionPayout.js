@@ -11,6 +11,8 @@ import { formatNumber } from "../../utils/FormatNumber";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { PiNotePencil } from "react-icons/pi";
 import { Pagination } from "../../components";
+import {useEffect, useState} from "react";
+import axios from "axios";
 
 const data = [
   {
@@ -58,10 +60,24 @@ const data = [
     comment: "commission for Mar, 2023",
   },
 ];
-const SalesPayout = () => {
+const CommissionPayout = () => {
   // total commission and totalPayout need to calculate
   const totalCommission = 23.42;
   const totalPayout = 312.41;
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+        // Fetch sales performance data from the Laravel API
+        axios.get('http://127.0.0.1:8000/api/payout')
+            .then((response) => {
+                setData(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching commissions payouts data:', error);
+            });
+  }, [setData]);
+
   return (
     <Wrapper className="dashboard-container">
       <AdminNav />
@@ -97,10 +113,10 @@ const SalesPayout = () => {
               return (
                 <tr key={index} className="vertical-center">
                   <td>{item.date} </td>
-                  <td>{item.salesID} </td>
-                  <td>{item.salesName} </td>
-                  <td>{item.merchantNo ? item.merchantNo : "--"} </td>
-                  <td>{item.MerchantName ? item.MerchantName : "--"} </td>
+                  <td>{item.sales_id} </td>
+                  <td>{item.first_name + ' ' + item.last_name } </td>
+                  <td>{item.merchant_id ? item.merchant_id : "--"} </td>
+                  <td>{item.DBA_name ? item.DBA_name : "--"} </td>
                   <td>{item.type} </td>
                   <td
                     style={{
@@ -108,10 +124,10 @@ const SalesPayout = () => {
                         item.type.toLowerCase() === "pay out" ? "#A30D11" : "",
                     }}
                   >
-                    {item.value
+                    {item.amount
                       ? item.type.toLowerCase() === "pay out"
-                        ? "-" + formatNumber(item.value)
-                        : formatNumber(item.value)
+                        ? "-" + formatNumber(item.amount)
+                        : formatNumber(item.amount)
                       : "$ --"}
                   </td>
                   <td
@@ -127,10 +143,7 @@ const SalesPayout = () => {
                     <button className="updateBtn">
                       <Link
                         className="action"
-                        to={`/admin/sales_payout/update/${item.salesID.substring(
-                          1,
-                          item.salesID.length
-                        )}`}
+                        to={`/admin/sales_payout/update/${item.id}`}
                       >
                         {" "}
                         <PiNotePencil />
@@ -213,4 +226,4 @@ const Wrapper = styled.section`
   }
 `;
 
-export default SalesPayout;
+export default CommissionPayout;

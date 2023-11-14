@@ -3,6 +3,8 @@ import { Heading, FormRow, Pagination, AdminNav } from "../../components";
 import { dateRange } from "../../utils/DateRange";
 import { dataManagementTableHeader } from "../../utils/TableColumnMapping";
 import { RiDeleteBinLine } from "react-icons/ri";
+import axios from 'axios';
+import {useState} from "react";
 
 const data = [
   {
@@ -45,7 +47,42 @@ const data = [
   },
 ];
 const DataManagement = () => {
-  const handleChange = (e) => {};
+
+    const [dateFrom, setDateFrom] = useState("");
+    const [dateTo, setDateTo] = useState("");
+
+    const handleChange = (e) => {
+        const name = e.target.name;
+        const value = e.target.value;
+        if (name === "dateFrom") {
+            setDateFrom(value);
+        } else if (name === "dateTo") {
+            setDateTo(value);
+        }
+    };
+
+    const handleImportData = () => {
+        const params = {
+            dateFrom: {dateFrom},
+            dateTo: {dateTo},
+            // dateFrom: '2023-01-01',
+            // dateTo: '2023-01-31'
+        };
+
+        console.log(params.dateFrom)
+        console.log(params.dateTo)
+        // Make a request to the Google Sheets API endpoint
+        axios.get(`http://127.0.0.1:8000/api/google-spreadsheet-api?${params.dateFrom}&${params.dateTo}`)
+            .then(response => {
+                // Handle the response data as needed
+                console.log('Data imported successfully:', response.data);
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('Error importing data:', error);
+            });
+    };
+
   return (
     <Wrapper className="dashboard-container">
       <AdminNav />
@@ -67,9 +104,11 @@ const DataManagement = () => {
 
           <button
             className="import-btn"
-            onClick={() => {
-              window.alert("function need to implement");
-            }}
+            onClick={handleImportData}
+            // onClick={() => {
+            //   // window.alert("function need to implement");
+            //     handleImportData()
+            // }}
           >
             import data
           </button>

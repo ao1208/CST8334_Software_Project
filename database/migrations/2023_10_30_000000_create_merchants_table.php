@@ -13,6 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('merchants', function (Blueprint $table) {
+            $table->id();
             $table->string('merchant_id')->unique();
             $table->string('SCP_number')->unique();
             $table->string('DBA_name');

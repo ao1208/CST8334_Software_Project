@@ -17,7 +17,7 @@ export const payoutColumnMappings = {
   merchantNo: "Merchant No",
   MerchantName: "Merchant Name",
   type: "Type",
-  value: "Value",
+  amount: "Amount",
   balance: "Balance",
   comment: "Comment",
 };
@@ -35,12 +35,12 @@ export const userListTableHeader = [
 ];
 
 export const userMappingTableHeader = [
-  "sales ID",
-  "sales name",
-  "commission%",
   "merchant no.",
   "SCP no.",
   "merchant name",
+  "sales ID",
+  "sales name",
+  "commission%",
   "date open",
   "account status",
   "action",

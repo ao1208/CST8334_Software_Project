@@ -1,6 +1,6 @@
 export { default as Dashboard } from "./Dashboard";
 export { default as MappingManagement } from "./MappingManagement";
-export { default as SalesPayout } from "./SalesPayout";
+export { default as SalesPayout } from "./CommissionPayout";
 export { default as SalesPerformance } from "./SalesPerformance";
 export { default as UserManagement } from "./UserManagement";
 export { default as DataManagement } from "./DataManagement";

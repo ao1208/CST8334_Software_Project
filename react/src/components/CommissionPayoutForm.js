@@ -27,10 +27,10 @@ const CommissionPayoutForm = ({ formType, user }) => {
     <Wrapper className="dashboard-container">
       <h1>commission payout - {formType}</h1>
       {/* form action need to implement */}
-      <form action="">
+      <form action="http://127.0.0.1:8000/api/payout" className="form" method='POST'>
         <FormRow
           labelName="sales ID"
-          name="salesID"
+          name="sales_id"
           value={currentUser.salesID}
           onChange={handleChange}
         />
@@ -38,19 +38,19 @@ const CommissionPayoutForm = ({ formType, user }) => {
           type="date"
           labelName="date"
           name="date"
-          value={currentUser.date}
+          // value={currentUser.date}
           onChange={handleChange}
         />
         <FormRow
           labelName="first name"
-          name="firstName"
-          value={currentUser.firstName}
+          name="first_name"
+          // value={currentUser.firstName}
           onChange={handleChange}
         />
         <FormRow
           labelName="last name"
-          name="lastName"
-          value={currentUser.lastName}
+          name="last_name"
+          // value={currentUser.lastName}
           onChange={handleChange}
         />
         <FormRow

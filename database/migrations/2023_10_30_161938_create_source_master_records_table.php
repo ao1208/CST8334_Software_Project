@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('account_status');
             $table->double('gross_volume');
             $table->double('transaction_fee');
+            $table->boolean('is_saved')->default(0);
             $table->timestamps();
         });
     }

@@ -9,72 +9,53 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { PiNotePencil } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { userMappingTableHeader } from "../../utils/TableColumnMapping";
-
-// below data for demo purpose
-const mappingData = [
-  {
-    salesId: "#Clover-001",
-    salesName: "Michael",
-    commission: "50%",
-    merchantNo: "22535747431",
-    SCPNo: "356456",
-    merchantName: "Goopter",
-    dateOpen: "1/24/2023",
-    status: "O",
-  },
-  {
-    salesId: "#Clover-002",
-    salesName: "Michael",
-    commission: "50%",
-    merchantNo: "22535747431",
-    SCPNo: "356456",
-    merchantName: "Goopter",
-    dateOpen: "21/24/2023",
-    status: "P",
-  },
-  {
-    salesId: "#Clover-003",
-    salesName: "Michael",
-    commission: "50%",
-    merchantNo: "22535747431",
-    SCPNo: "356456",
-    merchantName: "Goopter",
-    dateOpen: "21/24/2023",
-    status: "O",
-  },
-  {
-    salesId: "#Clover-004",
-    salesName: "Michael",
-    commission: "50%",
-    merchantNo: "22535747431",
-    SCPNo: "356456",
-    merchantName: "Goopter",
-    dateOpen: "21/24/2023",
-    status: "O",
-  },
-  {
-    salesId: "#Clover-005",
-    salesName: "Michael",
-    commission: "50%",
-    merchantNo: "22535747431",
-    SCPNo: "356456",
-    merchantName: "Goopter",
-    dateOpen: "21/24/2023",
-    status: "P",
-  },
-  {
-    salesId: "#Clover-006",
-    salesName: "Michael",
-    commission: "50%",
-    merchantNo: "22535747431",
-    SCPNo: "356456",
-    merchantName: "Goopter",
-    dateOpen: "1/24/2023",
-    status: "O",
-  },
-];
+import {useEffect, useState} from "react";
+import axios from "axios";
 
 const MappingManagement = () => {
+
+    const [mappingData, setMappingData] = useState([]);
+
+    useEffect(() => {
+        // Fetch merchant data from the Laravel API
+        axios.get('http://127.0.0.1:8000/api/merchant')
+            .then((response) => {
+                setMappingData(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching merchant data:', error);
+            });
+    }, [mappingData]);
+
+    const handleDelete = async (merchantId) => {
+        // Confirm with the user before proceeding with the delete
+        const shouldDelete = window.confirm("Are you sure you want to delete this merchant?");
+
+        if (!shouldDelete) {
+            return;
+        }
+
+        try {
+            // Send a DELETE request to the server
+            const response = await fetch(`http://127.0.0.1:8000/api/merchant/${merchantId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                // Optionally update the UI or trigger a reload of user data
+                console.log('Merchant deleted successfully');
+            } else {
+                const errorData = await response.json();
+                console.error(`Error deleting merchant: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Error deleting merchant:', error);
+        }
+    };
+
   return (
     <Wrapper className="dashboard-container">
       <AdminNav />
@@ -98,32 +79,29 @@ const MappingManagement = () => {
             {mappingData.map((item, index) => {
               return (
                 <tr key={index}>
-                  <td>{item.salesId} </td>
-                  <td className="display">{item.salesName}</td>
-                  <td>{item.commission} </td>
-                  <td>{item.merchantNo} </td>
-                  <td>{item.SCPNo} </td>
-                  <td>{item.merchantName} </td>
-                  <td>{item.dateOpen} </td>
+                  <td>{item.merchant_id} </td>
+                  <td>{item.SCP_number} </td>
+                  <td>{item.DBA_name} </td>
+                  <td>{item.sales_id} </td>
+                  <td className="display">{item.first_name + ' ' + item.last_name}</td>
+                  <td>{item.commission_percentage * 100} </td>
+                  <td>{item.date_open} </td>
                   <td>
                     <span
                       className="status"
-                      data-status={item.status}
+                      data-status={item.account_status}
                       style={{
-                        color: item.status === "P" ? "#A30D11" : "",
-                        backgroundColor: item.status === "P" ? "#FBE7E8" : "",
+                        color: item.account_status === "P" ? "#A30D11" : "",
+                        backgroundColor: item.account_status === "P" ? "#FBE7E8" : "",
                       }}
                     >
-                      {item.status}
+                      {item.account_status}
                     </span>
                   </td>
                   <td className="display">
                     <button className="updateBtn">
                       <Link
-                        to={`/admin/mapping_management/update/${item.salesId.substring(
-                          1,
-                          item.salesId.length
-                        )}`}
+                        to={`/admin/mapping_management/update/${item.merchant_id}`}
                       >
                         {" "}
                         <PiNotePencil />
@@ -133,7 +111,8 @@ const MappingManagement = () => {
                     <button
                       className="deleteBtn"
                       onClick={() =>
-                        window.alert("Function haven't implement yet")
+                        // window.alert("Function haven't implement yet")
+                        handleDelete(item.merchant_id)
                       }
                     >
                       <RiDeleteBinLine />

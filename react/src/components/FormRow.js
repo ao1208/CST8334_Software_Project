@@ -39,8 +39,8 @@ const FormRow = ({ type, labelName, name, value, onChange, placeholder }) => {
                 type="radio"
                 id="administrator"
                 name="role"
-                checked={value.toLowerCase() === "administrator"}
-                value="administrator"
+                checked={value == 1}
+                value="1"
                 onChange={onChange}
               />
               <label htmlFor="administrator">Administrator</label>
@@ -52,8 +52,8 @@ const FormRow = ({ type, labelName, name, value, onChange, placeholder }) => {
                   type="radio"
                   id="salesperson"
                   name="role"
-                  checked={value.toLowerCase() === "salesperson"}
-                  value="salesperson"
+                  checked={value == 2}
+                  value="2"
                   onChange={onChange}
                 />
                 <label htmlFor="salesperson">Salesperson</label>

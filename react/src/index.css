@@ -121,7 +121,7 @@ button {
   background-color: #ebf9f1 !important;
 }
 
-.striped tbody tr:nth-child(odd) .role[data-status="administrator"],
+.striped tbody tr:nth-child(odd) .role[data-status="1"],
 .striped tbody tr:nth-child(odd) .status[data-status="P"] {
   background-color: #fbe7e8 !important;
 }

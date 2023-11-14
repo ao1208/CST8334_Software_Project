@@ -49,7 +49,7 @@ function App() {
                     element={<MappingManagement />}
                 />
                 <Route
-                    path="/admin/mapping_management/update/:salesId"
+                    path="/admin/mapping_management/update/:merchantId"
                     element={<MappingUpdateUser />}
                 />
                 <Route
@@ -70,7 +70,7 @@ function App() {
                     element={<CommissionPayoutCreate />}
                 />
                 <Route
-                    path="/admin/sales_payout/update/:salesId"
+                    path="/admin/sales_payout/update/:recordId"
                     element={<CommissionPayoutUpdate />}
                 />
                 <Route path="/admin/data_management" element={<DataManagement />} />

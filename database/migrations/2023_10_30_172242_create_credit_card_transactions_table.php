@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->date('pdate');
             $table->string('merchant_id');
-            $table->double('visa_gross_volume');
-            $table->double('visa_transaction_fee');
-            $table->double('visa_commission');
-            $table->double('master_gross_volume');
-            $table->double('master_transaction_fee');
-            $table->double('master_commission');
+            $table->double('visa_gross_volume')->nullable();
+            $table->double('visa_transaction_fee')->nullable();
+            $table->double('visa_commission')->nullable();
+            $table->double('master_gross_volume')->nullable();
+            $table->double('master_transaction_fee')->nullable();
+            $table->double('master_commission')->nullable();
             $table->double('total_gross_volume');
             $table->double('total_transaction_fee');
             $table->double('total_commission');
