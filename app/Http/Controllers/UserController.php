@@ -59,7 +59,7 @@ class UserController extends Controller
             'sales_id' => 'required|string|max:255|unique:users',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => 'required|email|max:255|unique:users',
             'phone' => 'required|string|max:255',
             'address_street' => 'nullable|string|max:255',
             'address_city' => 'nullable|string|max:255',
@@ -72,7 +72,8 @@ class UserController extends Controller
         ]);
 
         // Auto-generate a random password
-        $password = Str::random(8);
+//        $password = Str::random(8);
+        $password = "123";
         $validatedData['password'] = bcrypt($password);
 
         // Create a new user into Users table

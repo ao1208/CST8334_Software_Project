@@ -87,7 +87,7 @@ export const salespersonReportTableHeader = [
 export const dataManagementTableHeader = [
   "PDate",
   "No. of merchant",
-  "userID",
+  "user",
   "import date time",
   "delete date time",
   "action",

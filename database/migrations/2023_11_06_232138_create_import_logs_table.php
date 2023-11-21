@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('import_logs', function (Blueprint $table) {
             $table->id();
             $table->date('pdate');
-            $table->date('number_of_merchant');
+            $table->Integer('number_of_merchant');
             $table->string('sales_id');
+            $table->datetime('deleted_datetime')->nullable();
             $table->timestamps();
-            $table->datetime('deleted_datetime');
 
             // Define the foreign key
             $table->foreign('sales_id')

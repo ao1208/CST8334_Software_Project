@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\CommissionPayoutController;
-use App\Http\Controllers\DBController;
+use App\Http\Controllers\DataManagementController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\SalesPerformanceController;
 use App\Http\Controllers\TestController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\GoogleSheetController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::post('api/login', [LoginController::class, 'authenticate']);
 
 Route::get('api/user', [UserController::class, 'findAll']);
 Route::get('api/user/{sales_id}', [UserController::class, 'getById']);
@@ -44,8 +46,11 @@ Route::delete('api/payout/{id}', [CommissionPayoutController::class, 'delete']);
 Route::get('api/payout-search', [CommissionPayoutController::class, 'findByDateAndKeyword']);
 
 Route::get('api/google-spreadsheet-api', [GoogleSheetController::class, 'download']);
-Route::get('saveTrans', [DBController::class, 'saveTransactions']);
-Route::get('saveComm', [DBController::class, 'saveCommissionPayoutRecords']);
+Route::get('api/data', [DataManagementController::class, 'findAll']);
+Route::put('api/data/{id}', [DataManagementController::class, 'update']);
+Route::get('api/data-search', [DataManagementController::class, 'findByDate']);
+
+//Route::get('api/test', [GoogleSheetController::class, 'test']);
 
 Route::get('/', function () {
     return view('welcome');

@@ -19,7 +19,7 @@ class Formatter
         $DATE_PATTERN_2 = '/^\d{1,2}\/\d{1,2}\/\d{4}$/';
         $DATE_FORMAT_1 = 'm/d/y';
         $DATE_FORMAT_2 = 'm/d/Y';
-        $DB_DATE_FORMAT = 'y-m-d';
+        $DB_DATE_FORMAT = 'Y-m-d';
 
         $date_string = trim($date_string); // trims the date string
 
