@@ -52,24 +52,17 @@ const CreateUser = () => {
                     },
                 }
             );
-            console.log(1);
 
             // Check if the response status is in the range 200-299
             if (response.status >= 200 && response.status < 300) {
-                console.log(2);
-
                 console.log('Success:', response.data);
                 // Redirect after successful save
                 window.location = '/admin/user_management';
             } else {
-                console.log(3);
-
                 // Handle non-successful response
                 throw new Error(`Server responded with status ${response.status}`);
             }
         } catch (error) {
-            console.log(4);
-
             console.error('Error:', error);
             if (error.response) {
                 // The request was made and the server responded with a non-2xx status code

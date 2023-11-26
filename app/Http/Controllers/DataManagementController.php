@@ -15,7 +15,7 @@ class DataManagementController extends Controller
 {
     public function findAll(): JsonResponse
     {
-        $logs = ImportLog::with('user')->get();
+        $logs = ImportLog::with('user')->orderBy('pdate','asc')->get();
 
         $logs->transform(function ($log) {
             $log->first_name = $log->user->first_name;
@@ -25,7 +25,6 @@ class DataManagementController extends Controller
         return response()->json($logs);
     }
 
-    //TODO: Not yet to test...
     public function findByDate(Request $request):JsonResponse
     {
         $dateRange = $request->input('date-range');
@@ -73,7 +72,7 @@ class DataManagementController extends Controller
         }
 
         // Execute the query and transform the results
-        $logs = $query->get();
+        $logs = $query->orderBy('pdate','asc')->get();
 
         $logs->transform(function ($log) {
             $log->first_name = $log->user->first_name;

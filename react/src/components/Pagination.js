@@ -4,7 +4,7 @@ const Pagination = ({ data }) => {
   // pagination function need to implement here !!!
   //   how many pages need to show on the screen, go to corresponding page
   //    after click the corresponding button
-  const numOfPages = data.length / 2;
+  const numOfPages = data.length / 5;
   const pages = Array.from({ length: numOfPages }, (_, index) => index + 1);
   const page = 1;
   const prev = () => {};

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { TbArrowNarrowUp } from "react-icons/tb";
+import {TbArrowNarrowDown, TbArrowNarrowUp} from "react-icons/tb";
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,63 +12,117 @@ import {
 } from "recharts";
 
 import { formatNumber } from "../utils/FormatNumber";
+import {useEffect, useState} from "react";
+import axios from "axios";
 
-// all the data I am using below is for demo only, need to replace with the real data
-const CommissionChart = () => {
-  const total = 16500.0;
-  const increaseRate = 2.1;
+const CommissionChart = ({ dateRange, salesPerson}) => {
 
-  const thisYearData = [
-    { date: "01", count: 100 },
-    { date: "02", count: 120 },
-    { date: "03", count: 90 },
-    { date: "04", count: 110 },
-    { date: "05", count: 130 },
-    { date: "06", count: 115 },
-    { date: "07", count: 140 },
-    { date: "08", count: 125 },
-    { date: "09", count: 95 },
-    { date: "10", count: 105 },
-    { date: "11", count: 135 },
-    { date: "12", count: 120 },
-  ];
+    const [total, setTotal] = useState(0);
+    const [increaseRate, setIncreaseRate] = useState(0);
 
-  const lastYearData = [
-    { date: "01", count: 80 },
-    { date: "02", count: 95 },
-    { date: "03", count: 75 },
-    { date: "04", count: 90 },
-    { date: "05", count: 100 },
-    { date: "06", count: 85 },
-    { date: "07", count: 110 },
-    { date: "08", count: 105 },
-    { date: "09", count: 70 },
-    { date: "10", count: 95 },
-    { date: "11", count: 110 },
-    { date: "12", count: 105 },
-  ];
+    // Fetch total balance data from the Laravel API
+    useEffect(() => {
+        axios.get('http://127.0.0.1:8000/api/dashboard-total-balance')
+            .then((response) => {
+                setTotal(response.data.total);
+                setIncreaseRate(response.data.increaseRate);
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+        console.log(increaseRate);
+    }, []); // Trigger the effect only once on component mount
 
-  const tableData = [
-    {
-      name: "VISA",
-      transactionVolume: 237024.65,
-      transactionFee: 520.23,
-      commission: 228.8,
-    },
-    {
-      name: "MASTER",
-      transactionVolume: 131543.49,
-      transactionFee: 220.23,
-      commission: 104.75,
-    },
-    ,
-    {
-      name: "Total",
-      transactionVolume: 368568.14,
-      transactionFee: 742.41,
-      commission: 333.55,
-    },
-  ];
+    const [lastYearData, setLastYearData] = useState([]);
+    const [thisYearData, setThisYearData] = useState([]);
+
+    // Fetch monthly commission data from the Laravel API
+    useEffect(() => {
+        axios.get('http://127.0.0.1:8000/api/dashboard-monthly-commission')
+            .then((response) => {
+                const first12Records = response.data.slice(0, 12);
+                const remainRecords = response.data.slice(12);
+
+                setLastYearData(first12Records);
+                setThisYearData(remainRecords);
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+    }, []); // Trigger the effect only once on component mount
+
+    // Combine last year and this year data
+    const combinedData = lastYearData.map((entry, index) => ({
+        month: entry.month.slice(5,7),
+        last: entry.month_amount,
+        this: thisYearData[index].month_amount,
+    }));
+
+    // State variable for transaction table data
+    const [tableData, setTableData] = useState([]);
+
+    // Fetch transaction data from the Laravel API
+    useEffect(() => {
+        axios.get('http://127.0.0.1:8000/api/dashboard-transaction')
+            .then((response) => {
+                // Transform the object into an array of objects
+                const transformedData = Object.entries(response.data).map(([name, values]) => ({
+                    name,
+                    ...values,
+                }));
+                setTableData(transformedData);
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+    }, []); // Trigger the effect only once on component mount
+
+    // Handle changes in the selected date range or salesperson
+    const handleDateORSalespersonChange = async () => {
+        try {
+            // Build the URLs with optional parameters
+            let url_total_balance = `http://127.0.0.1:8000/api/dashboard-total-balance`;
+            let url_monthly_commission = `http://127.0.0.1:8000/api/dashboard-monthly-commission`;
+            let url_transaction = `http://127.0.0.1:8000/api/dashboard-transaction`;
+
+            if (dateRange) { url_transaction += `?date-range=${dateRange}`; }
+            if (salesPerson) { // If dateRange is also present, add '&' before sales-person
+                url_total_balance += `?sales-person=${salesPerson}`;
+                url_monthly_commission += `?sales-person=${salesPerson}`;
+                url_transaction += dateRange ? `&sales-person=${salesPerson}` : `?sales-person=${salesPerson}`;
+            }
+
+            // Fetch total balance data
+            const response_total_balance = await axios.get(url_total_balance);
+            setTotal(response_total_balance.data.total);
+            setIncreaseRate(response_total_balance.data.increaseRate);
+            // Fetch monthly commission chart data
+            const response_monthly_commission = await axios.get(url_monthly_commission);
+            const first12Records = response_monthly_commission.data.slice(0, 12);
+            const remainRecords = response_monthly_commission.data.slice(12);
+            setLastYearData(first12Records);
+            setThisYearData(remainRecords);
+            // Fetch transaction table data
+            const response_transaction = await axios.get(url_transaction);
+            if (response_transaction.data !== null) {
+                const transformedData = Object.entries(response_transaction.data).map(([name, values]) => ({
+                    name,
+                    ...values,
+                }));
+                setTableData(transformedData);
+            } else {
+                // Handle the case where response.data is null
+                console.error('Received null data from the server.');
+            }
+        }catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    // Trigger the handleDateORSalespersonChange effect on changes in date range or salesperson
+    useEffect(() => {
+        handleDateORSalespersonChange();
+    }, [dateRange, salesPerson]); // Trigger the effect when date-range or sales-person values change
+
   return (
     <Wrapper>
       <div className="heading">
@@ -81,9 +135,9 @@ const CommissionChart = () => {
           <h4>CAD {formatNumber(total)}</h4>
           <p>
             {" "}
-            <span>
-              <TbArrowNarrowUp />
-              {increaseRate} %
+            <span style={{ color: increaseRate < 0 ? '#ff0000' : '#149d52' }}>
+              {increaseRate < 0 ? <TbArrowNarrowDown /> : <TbArrowNarrowUp />}
+              {increaseRate.toFixed(2)} %
             </span>{" "}
             vs last month
           </p>
@@ -92,16 +146,16 @@ const CommissionChart = () => {
 
       <div className="chart-wrapper">
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={thisYearData}>
+          <BarChart data={combinedData}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="date" axisLine={{ stroke: "#E2E7E7" }} />
+            <XAxis dataKey="month" axisLine={{ stroke: "#E2E7E7" }} />
             <YAxis allowDecimals={false} axisLine={{ stroke: "#E2E7E7" }} />
-            <Bar dataKey="count" fill="#5A6ACF" barSize={15}>
+            <Bar dataKey="this" fill="#5A6ACF" barSize={15}>
               {thisYearData.map((entry, index) => (
                 <Cell key={index} fill="#5A6ACF" />
               ))}
             </Bar>
-            <Bar dataKey="count" fill="#000000" barSize={15}>
+            <Bar dataKey="last" fill="#000000" barSize={15}>
               {lastYearData.map((entry, index) => (
                 <Cell key={index} fill="#E6E8EC" />
               ))}
@@ -113,7 +167,8 @@ const CommissionChart = () => {
         <p className="bottom">
           <span>
             {" "}
-            <span className="circle"></span>This Year
+            <span className="circle"></span>
+              This Year
           </span>{" "}
           <span>
             {" "}
@@ -121,7 +176,7 @@ const CommissionChart = () => {
               className="circle"
               style={{ backgroundColor: "#D8D9DB" }}
             ></span>
-            Last Year
+              Last Year
           </span>
         </p>
       </div>

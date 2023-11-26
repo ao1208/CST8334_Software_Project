@@ -7,54 +7,12 @@ import axios from 'axios';
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 
-const data = [
-  {
-    pdate: "2023/1",
-    numOfMerchant: 6,
-    userId: "goopter",
-    importTime: "2023-03-01 09:00:00",
-    deleteTime: "2023-03-24 09:00:00",
-  },
-  {
-    pdate: "2023/1",
-    numOfMerchant: 6,
-    userId: "goopter",
-    importTime: "2023-03-01 09:00:00",
-  },
-  {
-    pdate: "2023/1",
-    numOfMerchant: 6,
-    userId: "goopter",
-    importTime: "2023-03-01 09:00:00",
-    deleteTime: "2023-03-24 09:00:00",
-  },
-  {
-    pdate: "2023/1",
-    numOfMerchant: 6,
-    userId: "goopter",
-    importTime: "2023-03-01 09:00:00",
-  },
-  {
-    pdate: "2023/1",
-    numOfMerchant: 6,
-    userId: "goopter",
-    importTime: "2023-03-01 09:00:00",
-  },
-  {
-    pdate: "2023/1",
-    numOfMerchant: 6,
-    userId: "goopter",
-    importTime: "2023-03-01 09:00:00",
-  },
-];
-
-
 const DataManagement = () => {
 
     const [data, setData] = useState([]);
 
+    // Fetch data from the Laravel API
     useEffect(() => {
-        // Fetch user data from the Laravel API
         axios.get('http://127.0.0.1:8000/api/data')
             .then((response) => {
                 setData(response.data);
@@ -64,10 +22,11 @@ const DataManagement = () => {
             });
     }, []); // Trigger the effect only once on component mount
 
-
+    // State variables for date range input values
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
 
+    // Handle changes in the date range input values
     const handleChange = (e) => {
         const name = e.target.name;
         const value = e.target.value;
@@ -108,23 +67,21 @@ const DataManagement = () => {
 
     const [selectedDateRange, setSelectedDateRange] = useState('This year');
 
+    // Fetch data based on the selected date range from Laravel API
     const handleDateRangeChange = async () => {
-
         try {
-            axios.get(`http://127.0.0.1:8000/api/data-search?date-range=${selectedDateRange}`)
-                // { params: { 'date-range': selectedDateRange}}
-                .then((response) => {
-                    setData(response.data);
-            })
+            const response = await axios.get(`http://127.0.0.1:8000/api/data-search?date-range=${selectedDateRange}`);
+            setData(response.data);
         } catch (error) {
             console.error('Error:', error);
         }
     };
-
+    // Trigger the effect when date-range values change
     useEffect(() => {
         handleDateRangeChange();
     }, [selectedDateRange]); // Trigger the effect when date-range values change
 
+    // Handle import functionality
     const handleImport = () => {
         // Make a request to the Google Sheets API endpoint
         axios.get(`http://127.0.0.1:8000/api/google-spreadsheet-api?dateFrom=${dateFrom}&dateTo=${dateTo}`)
@@ -137,9 +94,8 @@ const DataManagement = () => {
                 console.error('Error importing data:', error);
             });
     };
-
+    // Handle delete functionality
     const handleDelete = async (id) => {
-
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/data/${id}`, {
                 method: 'PUT',
@@ -158,6 +114,18 @@ const DataManagement = () => {
         } catch (error) {
             console.error('Error:', error);
             window.alert(error);
+        }
+    };
+    // Handle delete confirmation
+    const handleDeleteConfirmation = (itemId, pdate) => {
+        const isConfirmed = window.confirm(`Are you sure you want to delete ${pdate.slice(0,7)}?`);
+
+        if (isConfirmed) {
+            // User confirmed, proceed with the delete operation
+            handleDelete(itemId);
+        } else {
+            // User canceled the delete operation
+            console.log("Delete canceled");
         }
     };
 
@@ -191,7 +159,6 @@ const DataManagement = () => {
         </div>
         <div className="date-range">
           <label htmlFor="date-range">display by: </label>
-          {/*<select name="date-range" id="date-range" value={selectedDateRange} onChange={handleDateRangeChange}>*/}
           <select name="date-range" id="date-range" value={selectedDateRange} onChange={(e) => setSelectedDateRange(e.target.value)}>
             {dateRange.map((item) => (
               <option key={item}>{item}</option>
@@ -220,14 +187,13 @@ const DataManagement = () => {
                   <td>{DateTimeFormatter({ datetime: item.deleted_datetime })}</td>
 
                   <td>
-                    {/* delete function need to implement */}
                     <button
                       disabled={item.deleted_datetime ? true : false}
                       style={{ color: item.deleted_datetime ? "#9e9e9e" : "" }}
                       className="deleteBtn"
                       onClick={() =>
-                        // window.alert("Function haven't implement yet")
-                          handleDelete(item.id)
+                        // window.("Function haven't implement yet")
+                          handleDeleteConfirmation(item.id, item.pdate)
                       }
                     >
                       <RiDeleteBinLine />

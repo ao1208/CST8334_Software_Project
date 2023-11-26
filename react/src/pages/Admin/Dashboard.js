@@ -1,17 +1,43 @@
 import styled from "styled-components";
 import { TopSales, CommissionChart, AdminNav } from "../../components";
 import { dateRange } from "../../utils/DateRange";
+import {useEffect, useState} from "react";
+import axios from "axios";
 
 const Dashboard = () => {
-  // below salesPerson for demo purpose, need to replace with the actual data.
-  const salesPerson = ["Dave", "Linda", "Jenny", "Julie"];
+
+    const [salesperson, setSalesperson] = useState([]);
+    const [selectedDateRange, setSelectedDateRange] = useState('');
+    const [selectedSalesperson, setSelectedSalesperson] = useState('');
+
+    // Fetch user list data from the Laravel API
+    useEffect(() => {
+        axios.get('http://127.0.0.1:8000/api/dashboard-salesperson-list')
+            .then((response) => {
+                setSalesperson(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+    }, []); // Trigger the effect only once on component mount
+
+    // Handle changes in the selected date range
+    const handleDateRangeChange = (event) => {
+        setSelectedDateRange(event.target.value);
+    };
+
+    // Handle changes in the selected salesperson
+    const handleSalespersonChange = (event) => {
+        setSelectedSalesperson(event.target.value);
+    };
+
   return (
     <Wrapper className="dashboard-container">
       <AdminNav />
       <div className="header">
         <h2>Dashboard</h2>
         <div>
-          <select name="date-range" id="date-range">
+          <select name="date-range" id="date-range" onChange={handleDateRangeChange} value={selectedDateRange}>
             <option value="" disabled selected>
               Date Range
             </option>
@@ -22,23 +48,21 @@ const Dashboard = () => {
             ))}
           </select>
 
-          <select name="sales-person" id="sales-person">
+          <select name="sales-person" id="sales-person" onChange={handleSalespersonChange} value={selectedSalesperson}>
             <option value="" disabled selected>
               Salesperson
             </option>
-            {salesPerson.map((person) => {
-              return (
-                <option key={person} value={person}>
-                  {person}
-                </option>
-              );
-            })}
+              {Object.entries(salesperson).map(([key, value]) => (
+                  <option key={key} value={key}>
+                      {value}
+                  </option>
+              ))}
           </select>
         </div>
       </div>
       <div className="chart-container">
-        <CommissionChart />
-        <TopSales />
+        <CommissionChart dateRange={selectedDateRange} salesPerson={selectedSalesperson}/>
+        <TopSales dateRange={selectedDateRange}/>
       </div>
     </Wrapper>
   );

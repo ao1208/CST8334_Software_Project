@@ -202,10 +202,16 @@ class GoogleSheetController extends Controller
     public function saveTransactions(): string
     {
         $existed_dates = CreditCardTransaction::distinct()->orderBy('pdate')->pluck('pdate')->toArray();
+
         // Retrieve unprocessed Visa records from the source Visa records table
         $visa_records = DB::table('source_visa_records')
             ->select('pdate', 'merchant_id', 'gross_volume', 'transaction_fee')
             ->get();
+        // Retrieve unprocessed MasterCard records from the source Master records table
+        $master_records = DB::table('source_master_records')
+            ->select('pdate', 'merchant_id', 'gross_volume', 'transaction_fee')
+            ->get();
+
         // Process and insert Visa records into the credit card transactions table
         foreach ($visa_records as $visa_record) {
             if (!in_array($visa_record->pdate, $existed_dates)) {
@@ -227,15 +233,17 @@ class GoogleSheetController extends Controller
             }
         }
 
-        // Retrieve unprocessed MasterCard records from the source Master records table
-        $master_records = DB::table('source_master_records')
-            ->select('pdate', 'merchant_id', 'gross_volume', 'transaction_fee')
-            ->get();
+
         // Process and insert MasterCard records into the credit card transactions table
         foreach ($master_records as $master_record) {
-            if (in_array($master_record->pdate, $existed_dates)) {
+            if (!in_array($master_record->pdate, $existed_dates)) {
                 // Check if a credit card transaction record with the same merchant_id exists
-                $record = DB::table('credit_card_transactions')->where('merchant_id', '=', $master_record->merchant_id)->first();
+                $record = DB::table('credit_card_transactions')
+                    ->where([
+                        ['merchant_id', '=', $master_record->merchant_id],
+                        ['pdate','=', $master_record->pdate]
+                    ])
+                    ->first();
 
                 // Get the commission percentage for the merchant table
                 $percent = DB::table('merchants')->where('merchant_id', '=', $master_record->merchant_id)->value('commission_percentage');
@@ -243,7 +251,10 @@ class GoogleSheetController extends Controller
                 if ($record) {
                     // Update the existing credit card transaction record
                     DB::table('credit_card_transactions')
-                        ->where('merchant_id', $master_record->merchant_id)
+                        ->where([
+                            ['merchant_id', '=', $master_record->merchant_id],
+                            ['pdate','=', $master_record->pdate]
+                        ])
                         ->update([
                             'master_gross_volume' => $master_record->gross_volume,
                             'master_transaction_fee' => $master_record->transaction_fee,

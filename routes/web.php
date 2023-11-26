@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CommissionPayoutController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataManagementController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MerchantController;
@@ -19,39 +20,45 @@ use App\Http\Controllers\GoogleSheetController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+// Authentication routes
 Route::post('api/login', [LoginController::class, 'authenticate']);
-
+// Dashboard routes
+Route::get('api/dashboard-salesperson-list', [DashboardController::class, 'getSalespersonList']);
+Route::get('api/dashboard-total-balance', [DashboardController::class, 'getTotalBalanceBySalesperson']);
+Route::get('api/dashboard-monthly-commission', [DashboardController::class, 'getCommissionPerMonthBySalesperson']);
+Route::get('api/dashboard-transaction', [DashboardController::class, 'getTransactionByDateORSalesperson']);
+Route::get('api/dashboard-top-sales', [DashboardController::class, 'getTop10SalesByDate']);
+// User routes
 Route::get('api/user', [UserController::class, 'findAll']);
 Route::get('api/user/{sales_id}', [UserController::class, 'getById']);
 Route::post('api/user', [UserController::class, 'create']);
 Route::put('api/user/{sales_id}', [UserController::class, 'update']);
 Route::delete('api/user/{sales_id}', [UserController::class, 'delete']);
 Route::get('api/user-search', [UserController::class, 'findByKeyword']);
-
+// Merchant routes
 Route::get('api/merchant', [MerchantController::class, 'findAll']);
 Route::get('api/merchant/{merchant_id}', [MerchantController::class, 'getById']);
 Route::post('api/merchant', [MerchantController::class, 'create']);
 Route::put('api/merchant/{merchant_id}', [MerchantController::class, 'update']);
 Route::delete('api/merchant/{merchant_id}', [MerchantController::class, 'delete']);
 Route::get('api/merchant-search', [MerchantController::class, 'findByKeyword']);
-
+// Sales performance routes
 Route::get('api/performance', [SalesPerformanceController::class, 'findAll']);
 Route::get('api/performance-search', [SalesPerformanceController::class, 'findByDateAndKeyword']);
-
+// Commission payout routes
 Route::get('api/payout', [CommissionPayoutController::class, 'findAll']);
 Route::get('api/payout/{id}', [CommissionPayoutController::class, 'getById']);
 Route::post('api/payout', [CommissionPayoutController::class, 'create']);
 Route::put('api/payout/{id}', [CommissionPayoutController::class, 'update']);
 Route::delete('api/payout/{id}', [CommissionPayoutController::class, 'delete']);
 Route::get('api/payout-search', [CommissionPayoutController::class, 'findByDateAndKeyword']);
-
+// Google Sheet API route for import data
 Route::get('api/google-spreadsheet-api', [GoogleSheetController::class, 'download']);
+// Data management routes
 Route::get('api/data', [DataManagementController::class, 'findAll']);
 Route::put('api/data/{id}', [DataManagementController::class, 'update']);
 Route::get('api/data-search', [DataManagementController::class, 'findByDate']);
-
-//Route::get('api/test', [GoogleSheetController::class, 'test']);
-
-Route::get('/', function () {
-    return view('welcome');
-});
+//// Welcome route
+//Route::get('/', function () {
+//    return view('welcome');
+//});
