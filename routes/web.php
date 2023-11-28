@@ -8,6 +8,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\SalesPerformanceController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleSheetController;
 /*
@@ -35,6 +36,7 @@ Route::post('api/user', [UserController::class, 'create']);
 Route::put('api/user/{sales_id}', [UserController::class, 'update']);
 Route::delete('api/user/{sales_id}', [UserController::class, 'delete']);
 Route::get('api/user-search', [UserController::class, 'findByKeyword']);
+Route::get('api/sales-id', [UserController::class, 'getNewId']);
 // Merchant routes
 Route::get('api/merchant', [MerchantController::class, 'findAll']);
 Route::get('api/merchant/{merchant_id}', [MerchantController::class, 'getById']);
@@ -42,10 +44,16 @@ Route::post('api/merchant', [MerchantController::class, 'create']);
 Route::put('api/merchant/{merchant_id}', [MerchantController::class, 'update']);
 Route::delete('api/merchant/{merchant_id}', [MerchantController::class, 'delete']);
 Route::get('api/merchant-search', [MerchantController::class, 'findByKeyword']);
-// Sales performance routes
+// Sales performance routes-Administrator
 Route::get('api/performance', [SalesPerformanceController::class, 'findAll']);
 Route::get('api/performance-search', [SalesPerformanceController::class, 'findByDateAndKeyword']);
-// Commission payout routes
+Route::get('api/performance-report', [SalesPerformanceController::class, 'reportAll']);
+Route::get('api/performance-report-search', [SalesPerformanceController::class, 'reportByDate']);
+// Sales performance routes-Salesperson
+Route::middleware(['auth'])->group(function () {
+    Route::get('api/sales-performance', [SalesPerformanceController::class, 'findAllBySalesperson']);
+});
+// Commission payout routes-Administrator
 Route::get('api/payout', [CommissionPayoutController::class, 'findAll']);
 Route::get('api/payout/{id}', [CommissionPayoutController::class, 'getById']);
 Route::post('api/payout', [CommissionPayoutController::class, 'create']);
@@ -62,3 +70,13 @@ Route::get('api/data-search', [DataManagementController::class, 'findByDate']);
 //Route::get('/', function () {
 //    return view('welcome');
 //});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+});

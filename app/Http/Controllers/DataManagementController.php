@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DateRange;
 use App\Models\CommissionPayoutRecord;
 use App\Models\CreditCardTransaction;
 use App\Models\ImportLog;
@@ -13,58 +14,29 @@ use Illuminate\Support\Carbon;
 
 class DataManagementController extends Controller
 {
-    public function findAll(): JsonResponse
+    public function findAll(Request $request): JsonResponse
     {
-        $logs = ImportLog::with('user')->orderBy('pdate','asc')->get();
+        // Set the default values for page and perPage
+        $perPage = $request->input('perPage', 10);
 
-        $logs->transform(function ($log) {
-            $log->first_name = $log->user->first_name;
-            $log->last_name = $log->user->last_name;
-            return $log;
-        });
+        $logs = ImportLog::join('users', 'import_logs.sales_id', '=', 'users.sales_id')
+            ->select('import_logs.id','pdate', 'number_of_merchant','users.sales_id','users.first_name',
+                'users.last_name', 'import_logs.created_at', 'deleted_datetime')
+            ->orderBy('pdate','asc')->get();
+
         return response()->json($logs);
     }
 
     public function findByDate(Request $request):JsonResponse
     {
+        // Extract date range from the request
         $dateRange = $request->input('date-range');
-
-        switch ($dateRange) {
-            case "This month":
-                $startDate = Carbon::now()->startOfMonth(); // First day of the current month
-                $endDate = Carbon::now()->endOfMonth();   // Last day of the current month
-                break;
-            case "Last month":
-                $startDate = Carbon::now()->subMonth(1)->startOfMonth(); // First day of the last month
-                $endDate = Carbon::now()->subMonth(1)->endOfMonth();   // Last day of the last month
-                break;
-            case "Last 3 months":
-                $startDate = Carbon::now()->subMonths(2)->startOfMonth(); // First day of 3 months ago
-                $endDate = Carbon::now()->endOfMonth();   // Last day of the current month
-                break;
-            case "Last 6 months":
-                $startDate = Carbon::now()->subMonths(5)->startOfMonth(); // First day of 6 months ago
-                $endDate = Carbon::now()->endOfMonth();   // Last day of the current month
-                break;
-            case "This year":
-                $startDate = Carbon::now()->startOfYear(); // First day of the current year
-                $endDate = Carbon::now()->endOfYear();   // Last day of the current year
-                break;
-            case "Last year":
-                $startDate = Carbon::now()->subYear(1)->startOfYear(); // First day of last year
-                $endDate = Carbon::now()->subYear(1)->endOfYear();   // Last day of last year
-                break;
-            case "Last 12 months":
-                $startDate = Carbon::now()->subMonths(11)->startOfMonth(); // First day of 12 months ago
-                $endDate = Carbon::now()->endOfMonth();   // Last day of the current month
-                break;
-            default:
-                $startDate = null;
-                $endDate = null;
-        }
+        // Get start and end dates based on the provided date range
+        $startDate = DateRange::getStartAndEndDate($dateRange)['startDate'];
+        $endDate = DateRange::getStartAndEndDate($dateRange)['endDate'];
 
         // Start building the query
-        $query = ImportLog::with('user');
+        $query = ImportLog::join('users', 'import_logs.sales_id', '=', 'users.sales_id');
 
         // Apply date range filter
         if ($startDate && $endDate) {
@@ -72,13 +44,10 @@ class DataManagementController extends Controller
         }
 
         // Execute the query and transform the results
-        $logs = $query->orderBy('pdate','asc')->get();
-
-        $logs->transform(function ($log) {
-            $log->first_name = $log->user->first_name;
-            $log->last_name = $log->user->last_name;
-            return $log;
-        });
+        $logs = $query->select( 'import_logs.id','pdate', 'number_of_merchant',
+            'users.sales_id','users.first_name','users.last_name',
+            'import_logs.created_at', 'deleted_datetime')
+            ->orderBy('pdate','asc')->get();
 
         return response()->json($logs);
     }

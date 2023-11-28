@@ -1,7 +1,7 @@
 import {styled} from "styled-components";
 import {
     Heading,
-    AdminSearchContainer,
+    UserSearchContainer,
     Pagination,
     AdminNav,
 } from "../../components";
@@ -15,44 +15,48 @@ import axios from 'axios';
 const UserManagement = () => {
 
     const [userData, setUserData] = useState([]);
+    const [apiUrl, setApiUrl] = useState('http://127.0.0.1:8000/api/user');
 
     useEffect(() => {
-        // Fetch user data from the Laravel API
-        axios.get('http://127.0.0.1:8000/api/user')
-            .then((response) => {
+        const fetchRecords = async () => {
+            try {
+                const response = await axios.get(apiUrl);
                 setUserData(response.data);
-            })
-            .catch((error) => {
-                console.error('Error fetching user data:', error);
-            });
-    }, [userData]);
+                if (response.data.length === 0) {
+                    alert('No records found.');
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchRecords();
+    },[apiUrl]);
 
     const handleDelete = async (salesId) => {
         // Confirm with the user before proceeding with the delete
-        const shouldDelete = window.confirm("Are you sure you want to delete this user?");
+        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
 
-        if (!shouldDelete) {
-            return;
-        }
-
-        try {
-            // Send a DELETE request to the server
-            const response = await fetch(`http://127.0.0.1:8000/api/user/${salesId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                // Optionally update the UI or trigger a reload of user data
-                console.log('User deleted successfully');
-            } else {
-                const errorData = await response.json();
-                console.error(`Error deleting user: ${errorData.message}`);
+        if (confirmDelete) {
+            try {
+                const response = await axios.delete(`http://127.0.0.1:8000/api/user/${salesId}`);
+                if (response.status === 200) {
+                    console.log('Record deleted successfully');
+                }
+            } catch (error) {
+                if (error.response) {
+                    const statusCode = error.response.status;
+                    if (statusCode === 500 && error.response.data && error.response.data.message && error.response.data.message.includes('Integrity constraint violation')) {
+                        window.alert('Cannot delete this user as it is being used in referenced merchant mapping table.');
+                    } else if (statusCode === 500) {
+                        window.alert('Server error occurred. Please try again later.');
+                    } else if (statusCode === 400 || statusCode === 404) {
+                        window.alert('Client error occurred. Please check your request.');
+                    }
+                } else {
+                    console.error('Error deleting user', error);
+                    window.alert('An error occurred while deleting the record. Please try again.');
+                }
             }
-        } catch (error) {
-            console.error('Error deleting user:', error);
         }
     };
 
@@ -60,7 +64,8 @@ const UserManagement = () => {
         <Wrapper className="dashboard-container">
             <AdminNav/>
             <Heading heading="User Lists"/>
-            <AdminSearchContainer
+            <UserSearchContainer
+                setApiUrl={setApiUrl}
                 link="/admin/user_management/create_user"
                 text="New User"
             />

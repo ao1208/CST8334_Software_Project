@@ -108,7 +108,7 @@ const UpdateUser = () => {
                         labelName="sales ID"
                         name="sales_id"
                         value={currentUser ? currentUser.sales_id : null}
-                        onChange={handleChange}
+                        disabled
                     />
                     <button
                         className="verifyBtn"
@@ -195,7 +195,7 @@ const UpdateUser = () => {
                 <FormRow
                     type="radio"
                     name="role"
-                    value={currentUser ? currentUser.role : 2}
+                    value={currentUser ? currentUser.role : null}
                     onChange={handleChange}
                 />
                 <div className="btn-container">

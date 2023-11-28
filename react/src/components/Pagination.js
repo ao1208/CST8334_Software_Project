@@ -1,14 +1,37 @@
 import styled from "styled-components";
 import { HiChevronDoubleLeft, HiChevronDoubleRight } from "react-icons/hi";
-const Pagination = ({ data }) => {
-  // pagination function need to implement here !!!
-  //   how many pages need to show on the screen, go to corresponding page
-  //    after click the corresponding button
-  const numOfPages = data.length / 5;
+import {useEffect, useState} from "react";
+const Pagination = ({ data, numOfPages, onPageChange }) => {
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // useEffect(() => {
+  //   // Reset current page when data changes
+  //   setCurrentPage(1);
+  // }, [data]);
+
   const pages = Array.from({ length: numOfPages }, (_, index) => index + 1);
-  const page = 1;
-  const prev = () => {};
-  const next = () => {};
+
+  const prev = () => {
+    const newPage = Math.max(currentPage - 1, 1);
+    setCurrentPage(newPage);
+    goToPage(newPage);
+  };
+  const next = () => {
+    const newPage = Math.min(currentPage + 1, numOfPages);
+    setCurrentPage(newPage);
+    goToPage(newPage);
+  };
+  // go to corresponding page after click the corresponding button
+  const goToPage = (pageNumber) => {
+    onPageChange(pageNumber);
+    setCurrentPage(pageNumber);
+  };
+
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const endIndex = startIndex + itemsPerPage;
+  // const visibleData = data.slice(startIndex, endIndex);
+
   return (
     <Wrapper>
       {numOfPages >= 1 && (
@@ -22,7 +45,8 @@ const Pagination = ({ data }) => {
                 <button
                   key={pageNumber}
                   type="button"
-                  className={pageNumber === page ? "pageBtn active" : "pageBtn"}
+                  className={pageNumber === currentPage ? "pageBtn active" : "pageBtn"}
+                  onClick={() => goToPage(pageNumber)}
                 >
                   {pageNumber}
                 </button>

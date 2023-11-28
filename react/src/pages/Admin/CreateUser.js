@@ -41,7 +41,6 @@ const CreateUser = () => {
     const handleSubmit = async (e) => {
 
         e.preventDefault();
-        console.log(0);
         try {
             const response = await axios.post(
                 'http://127.0.0.1:8000/api/user',
@@ -107,9 +106,11 @@ const CreateUser = () => {
                     />
                     <button
                         className="verifyBtn"
-                        style={{backgroundColor: currentUser ? "#9E9E9E" : ""}}
+                        style={{backgroundColor: currentUser ? "#624DE3" : "#9E9E9E"}}
                         disabled={!!currentUser}
-                        onClick={() => window.alert("Function need to implement")}
+                        onClick={() =>
+                            window.alert("Function need to implement")
+                        }
                     >
                         verify ID
                     </button>
@@ -197,12 +198,7 @@ const CreateUser = () => {
                     <Link to="/admin/user_management">
                         <button className="cancelBtn">cancel</button>
                     </Link>
-
-                    {/* save function need to implement */}
-                    <button
-                        className="saveBtn"
-                        // onClick={handleSave}
-                    >
+                    <button className="saveBtn">
                         save
                     </button>
                 </div>

@@ -14,7 +14,7 @@ class UserController extends Controller
      */
     public function findAll(): JsonResponse
     {
-        $users = User::all();
+        $users = User::orderBy('sales_id')->get();
         return response()->json($users);
     }
 
@@ -34,13 +34,19 @@ class UserController extends Controller
      * @param string $keyword
      * @return JsonResponse
      */
-    public function findByKeyword(string $keyword): JsonResponse
+    public function findByKeyword(Request $request): JsonResponse
     {
+        $keyword = $request->query('keyword');
+        // Check if the keyword parameter is missing
+        if (!$keyword) {
+            return response()->json(['message' => 'Keyword parameter missing'], 400);
+        }
         // Search for users with a sales_id or name or email containing the provided keyword
         $users = User::where('sales_id', 'like', '%' . $keyword . '%')
             ->orWhere('first_name', 'like', '%' . $keyword . '%')
             ->orWhere('last_name', 'like', '%' . $keyword . '%')
             ->orWhere('email', 'like', '%' . $keyword . '%')
+            ->orderBy('sales_id')
             ->get();
 
         // Return the list of matching users as a JSON response
@@ -102,8 +108,11 @@ class UserController extends Controller
             $newSalesID = 'Clove-' . $nextSequence;
         }
 
+        // Check if there is any user with the given sales ID
+        $existingUser = User::where('sales_id', '=', $newSalesID)->first();
+
         // Check if the new sales_id is unique
-        while (!$this->verifyID($newSalesID)) {
+        while (!is_null($existingUser)) {
             // If not unique, generate another ID
             $sequence = (int)preg_replace('/[^0-9]/', '', $newSalesID);
             $nextSequence = str_pad($sequence + 1, 3, '0', STR_PAD_LEFT);
@@ -125,19 +134,18 @@ class UserController extends Controller
 
         // Validate the request data
         $validatedData = $request->validate([
-//            'sales_id' => 'required|string' . $sales_id,
             'first_name' => 'required|string',
-//            'last_name' => 'required|string',
-//            'email' => 'required|email',
-//            'phone' => 'required|string',
-//            'address_street' => 'nullable|string',
-//            'address_city' => 'nullable|string',
-//            'address_province' => 'nullable|string',
-//            'address_country' => 'nullable|string',
-//            'address_postal_code' => 'nullable|string',
-//            'hire_date' => 'required|date',
-//            'status' => 'required',
-//            'role' => 'required',
+            'last_name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|string',
+            'address_street' => 'nullable|string',
+            'address_city' => 'nullable|string',
+            'address_province' => 'nullable|string',
+            'address_country' => 'nullable|string',
+            'address_postal_code' => 'nullable|string',
+            'hire_date' => 'required|date',
+            'status' => 'required',
+            'role' => 'required',
         ]);
 
         // Find the user by ID
@@ -148,19 +156,18 @@ class UserController extends Controller
         }
 
         // Update the user data
-//        $user->sales_id = $validatedData['sales_id'];
         $user->first_name = $validatedData['first_name'];
-//        $user->last_name = $validatedData['last_name'];
-//        $user->email = $validatedData['email'];
-//        $user->phone = $validatedData['phone'];
-//        $user->address_street = $validatedData['address_street'];
-//        $user->address_city = $validatedData['address_city'];
-//        $user->address_province = $validatedData['address_province'];
-//        $user->address_country = $validatedData['address_country'];
-//        $user->address_postal_code = $validatedData['address_postal_code'];
-//        $user->hire_date = $validatedData['hire_date'];
-//        $user->status = $validatedData['status'];
-//        $user->role = $validatedData['role'];
+        $user->last_name = $validatedData['last_name'];
+        $user->email = $validatedData['email'];
+        $user->phone = $validatedData['phone'];
+        $user->address_street = $validatedData['address_street'];
+        $user->address_city = $validatedData['address_city'];
+        $user->address_province = $validatedData['address_province'];
+        $user->address_country = $validatedData['address_country'];
+        $user->address_postal_code = $validatedData['address_postal_code'];
+        $user->hire_date = $validatedData['hire_date'];
+        $user->status = $validatedData['status'];
+        $user->role = $validatedData['role'];
         $user->update();
 
         return response()->json(['message' => 'User updated successfully']);

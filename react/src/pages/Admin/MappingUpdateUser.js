@@ -20,6 +20,7 @@ const MappingUpdateUser = () => {
 
     const {merchantId} = useParams();
     const [currentUserMapping, setCurrentUserMapping] = useState(initialUserMapping);
+    const [isFormModified, setIsFormModified] = useState(false);
 
     useEffect(() => {
         // Fetch merchant data from the Laravel API
@@ -37,16 +38,22 @@ const MappingUpdateUser = () => {
 
         setCurrentUserMapping((prevMapping) => ({
             ...prevMapping,
-            [name]: value,
+            [name]: value === "" ? null : value, // Convert empty values to null
+
         }));
+        setIsFormModified(true);
     };
 
     // Update merchant data into DB through Laravel API
     const handleSubmit = async (e) => {
-
         e.preventDefault();
 
         try {
+            if (!isFormModified) {
+                console.log('No changes made');
+                return;
+            }
+
             const response = await fetch(`http://127.0.0.1:8000/api/merchant/${merchantId}`, {
                 method: 'PUT',
                 headers: {
@@ -56,13 +63,19 @@ const MappingUpdateUser = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok. Status: ${response.status}');
+                if (response.status === 404) {
+                    console.error('Error: Resource not found.');
+                } else {
+                    const errorResponse = await response.text();
+                    console.log("actual error :" + errorResponse);
+                    throw new Error(`Network response was not ok. Status: ${response.status}`);
+                }
+            } else {
+                const data = await response.json();
+                console.log('Success:', data);
+                window.location = "/admin/mapping_management";
+                setIsFormModified(false);
             }
-            const data = await response.json();
-            console.log('Success:', data);
-
-            window.location = "/admin/mapping_management";
-
         } catch (error) {
             console.error('Error:', error);
         }
@@ -80,7 +93,7 @@ const MappingUpdateUser = () => {
                             name="merchant_id"
                             // placeholder="search ..."
                             value={currentUserMapping ? currentUserMapping.merchant_id : null}
-                            onChange={handleChange}
+                            disabled
                         />
                     </div>
                     <FormRow

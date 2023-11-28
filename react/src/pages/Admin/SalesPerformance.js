@@ -4,95 +4,71 @@ import { salesPerformanceTableHeader } from "../../utils/TableColumnMapping";
 import { Link } from "react-router-dom";
 import {useEffect, useState} from "react";
 import axios from "axios";
-const data = [
-  {
-    pDate: "2023/05",
-    salesId: "#Clover-001",
-    salesName: "Michael",
-    commissionPercent: "50%",
-    merchantNo: "21314525",
-    merchantName: "Goopter",
-    visaGross: 9026.61,
-    visaTXN: 23.23,
-    masterGross: 0,
-    masterTXN: 0,
-    commission: 21.23,
-  },
-  {
-    pDate: "2023/05",
-    salesId: "#Clover-001",
-    salesName: "Michael",
-    commissionPercent: "50%",
-    merchantNo: "21314525",
-    merchantName: "Goopter",
-    visaGross: 9026.61,
-    visaTXN: 23.23,
-    masterGross: 7729.34,
-    masterTXN: 12.34,
-    commission: 21.23,
-  },
-  ,
-  {
-    pDate: "2023/05",
-    salesId: "#Clover-001",
-    salesName: "Michael",
-    commissionPercent: "50%",
-    merchantNo: "21314525",
-    merchantName: "Goopter",
-    visaGross: 9026.61,
-    visaTXN: 23.23,
-    masterGross: 7729.34,
-    masterTXN: 12.34,
-    commission: 21.23,
-  },
-  ,
-  {
-    pDate: "2023/05",
-    salesId: "#Clover-001",
-    salesName: "Michael",
-    commissionPercent: "50%",
-    merchantNo: "21314525",
-    merchantName: "Goopter",
-    visaGross: 9026.61,
-    visaTXN: 23.23,
-    masterGross: 7729.34,
-    masterTXN: 12.34,
-    commission: 21.23,
-  },
-];
-const SalesPerformance = ({apiUrl}) => {
+
+const SalesPerformance = () => {
 
     const [data, setPerformanceData] = useState([]);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [numOfPages, setNumOfPages] = useState(1);
+    const [apiUrl, setApiUrl] = useState('http://127.0.0.1:8000/api/performance');
 
     useEffect(() => {
-        // Fetch sales performance data from the Laravel API
-        let url = 'http://127.0.0.1:8000/api/performance';
-        if (apiUrl) {
-            url = {apiUrl}
-        }
-        axios.get(url)
-            .then((response) => {
-                setPerformanceData(response.data);
-            })
-            .catch((error) => {
+        const fetchRecords = async () => {
+            try {
+                const response = await axios.get(apiUrl);
+                console.log(response.data.data);
+                setPerformanceData(response.data.data);
+                setItemsPerPage(response.data.per_page);
+                setNumOfPages(response.data.last_page);
+                if (response.data.data.length === 0) {
+                    alert('No records found.');
+                }
+            } catch (error) {
                 console.error('Error fetching sales performances data:', error);
-            });
-    }, []);
+            }
+        };
+        fetchRecords();
+    },[apiUrl]);
+
+    // Callback function for handling page changes
+    const handlePageChange = (newPage) => {
+        const url = new URL(apiUrl);
+
+        // Update the 'page' parameter
+        url.searchParams.set('page', newPage);
+
+        // Remove duplicate 'page' parameters
+        const updatedUrl = removeDuplicatePageParams(url);
+
+        setApiUrl(updatedUrl);
+
+        console.log("Page changed to:", newPage);
+    };
+
+    const removeDuplicatePageParams = (url) => {
+        const urlSearchParams = new URLSearchParams(url.search);
+        const uniqueParams = new Map();
+
+        // Iterate over existing parameters and keep the last occurrence of each
+        urlSearchParams.forEach((value, key) => {
+            uniqueParams.set(key, value);
+        });
+
+        // Update the URL with the unique parameters
+        const updatedUrl = `${url.origin}${url.pathname}?${[...uniqueParams.entries()].map(([key, value]) => `${key}=${value}`).join('&')}`;
+
+        return new URL(updatedUrl);
+    };
 
   return (
     <Wrapper className="dashboard-container">
       <AdminNav />
       <Heading heading="sales performance" />
       <div className="filter">
-        <SalesSearch />
+        <SalesSearch setApiUrl={setApiUrl}/>
         <div className="report">
           <Link to="/admin/sales_performance_report">
-            <button
-              className="report-btn"
-              onClick={() => {
-                window.alert("function haven't implement");
-              }}
-            >
+            <button className="report-btn">
               report
             </button>
           </Link>
@@ -112,9 +88,9 @@ const SalesPerformance = ({apiUrl}) => {
             {data.map((item, index) => {
               return (
                 <tr key={index}>
-                  <td>{item.pdate} </td>
+                  <td>{item.pdate.substring(0, 7).replace('-','/')} </td>
                   <td>{item.sales_id}</td>
-                  <td>{item.user_first_name + ' ' + item.user_last_name} </td>
+                  <td>{item.first_name + ' ' + item.last_name} </td>
                   <td>{item.commission_percentage * 100} </td>
                   <td>{item.merchant_id} </td>
                   <td>{item.DBA_name} </td>
@@ -130,7 +106,11 @@ const SalesPerformance = ({apiUrl}) => {
         </table>
       </div>
 
-      <Pagination data={data} />
+      <Pagination
+          data={data}
+          itemsPerPage={itemsPerPage}
+          numOfPages={numOfPages}
+          onPageChange={handlePageChange} />
     </Wrapper>
   );
 };

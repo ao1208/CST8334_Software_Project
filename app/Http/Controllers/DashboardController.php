@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DateRange;
 use App\Models\CommissionPayoutRecord;
 use App\Models\CreditCardTransaction;
 use App\Models\User;
@@ -112,8 +113,8 @@ class DashboardController extends Controller
         $dateRange = $request->input('date-range');
         $salesPerson = $request->input('sales-person');
         // Get start and end dates based on the provided date range
-        $startDate = $this->getStartAndEndDate($dateRange)['startDate'];
-        $endDate = $this->getStartAndEndDate($dateRange)['endDate'];
+        $startDate = DateRange::getStartAndEndDate($dateRange)['startDate'];
+        $endDate = DateRange::getStartAndEndDate($dateRange)['endDate'];
 
         // Initialize query builder
         $query = CreditCardTransaction::join('merchants', 'credit_card_transactions.merchant_id', '=', 'merchants.merchant_id');
@@ -175,8 +176,8 @@ class DashboardController extends Controller
         // Extract date range from the request
         $dateRange = $request->input('date-range');
         // Get start and end dates based on the provided date range
-        $startDate = $this->getStartAndEndDate($dateRange)['startDate'];
-        $endDate = $this->getStartAndEndDate($dateRange)['endDate'];
+        $startDate = DateRange::getStartAndEndDate($dateRange)['startDate'];
+        $endDate = DateRange::getStartAndEndDate($dateRange)['endDate'];
 
         // Start building the query
         $query = CommissionPayoutRecord::join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id');
@@ -207,60 +208,6 @@ class DashboardController extends Controller
 
         // Return the response with top performances and data date
         return response()->json(['performances' => $performances, 'dataDate' => $dataDate]);
-    }
-
-    /**
-     * Calculates the start and end dates based on the provided date range.
-     *
-     * @param string $dateRange The selected date range.
-     * @return array An associative array containing 'startDate' and 'endDate'.
-     */
-    private function getStartAndEndDate($dateRange):array
-    {
-        // Initialize an empty array to store the start and end dates
-        $dateArray = [];
-
-        // Switch case to determine the start and end dates based on the selected date range
-        switch ($dateRange) {
-            case "This month":
-                $startDate = Carbon::now()->startOfMonth(); // First day of the current month
-                $endDate = Carbon::now()->endOfMonth();   // Last day of the current month
-                break;
-            case "Last month":
-                $startDate = Carbon::now()->subMonth(1)->startOfMonth(); // First day of the last month
-                $endDate = Carbon::now()->subMonth(1)->endOfMonth();   // Last day of the last month
-                break;
-            case "Last 3 months":
-                $startDate = Carbon::now()->subMonths(2)->startOfMonth(); // First day of 3 months ago
-                $endDate = Carbon::now()->endOfMonth();   // Last day of the current month
-                break;
-            case "Last 6 months":
-                $startDate = Carbon::now()->subMonths(5)->startOfMonth(); // First day of 6 months ago
-                $endDate = Carbon::now()->endOfMonth();   // Last day of the current month
-                break;
-            case "This year":
-                $startDate = Carbon::now()->startOfYear(); // First day of the current year
-                $endDate = Carbon::now()->endOfYear();   // Last day of the current year
-                break;
-            case "Last year":
-                $startDate = Carbon::now()->subYear(1)->startOfYear(); // First day of last year
-                $endDate = Carbon::now()->subYear(1)->endOfYear();   // Last day of last year
-                break;
-            case "Last 12 months":
-                $startDate = Carbon::now()->subMonths(11)->startOfMonth(); // First day of 12 months ago
-                $endDate = Carbon::now()->endOfMonth();   // Last day of the current month
-                break;
-            default:
-                $startDate = null;
-                $endDate = null;
-        }
-
-        // Assign values to the array keys directly
-        $dateArray['startDate'] = $startDate;
-        $dateArray['endDate'] = $endDate;
-
-        // Return the associative array containing start and end dates
-        return $dateArray;
     }
 
     /**

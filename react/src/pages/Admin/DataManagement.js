@@ -72,6 +72,9 @@ const DataManagement = () => {
         try {
             const response = await axios.get(`http://127.0.0.1:8000/api/data-search?date-range=${selectedDateRange}`);
             setData(response.data);
+            if (response.data.length === 0) {
+                alert('No records found.');
+            }
         } catch (error) {
             console.error('Error:', error);
         }
@@ -192,7 +195,6 @@ const DataManagement = () => {
                       style={{ color: item.deleted_datetime ? "#9e9e9e" : "" }}
                       className="deleteBtn"
                       onClick={() =>
-                        // window.("Function haven't implement yet")
                           handleDeleteConfirmation(item.id, item.pdate)
                       }
                     >
