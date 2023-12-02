@@ -2,7 +2,7 @@ export const performanceColumnMappings = {
   pDate: "PDate",
   salesID: "Sales ID",
   salesName: "Sales Name",
-  commission: "Commission",
+  commission: "Commission%",
   merchantNo: "Merchant No",
   MerchantName: "Merchant Name",
   visaCommission: "Visa Commission",

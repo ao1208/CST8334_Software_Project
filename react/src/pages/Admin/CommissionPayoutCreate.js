@@ -86,36 +86,36 @@ const CommissionPayoutCreate = () => {
                     value={currentRecord ? currentRecord.date : null}
                     onChange={handleChange}
                 />
-                {/*<FormRow*/}
-                {/*    labelName="first name"*/}
-                {/*    name="first_name"*/}
-                {/*    value={currentRecord ? currentRecord.first_name : null}*/}
-                {/*    onChange={handleChange}*/}
-                {/*/>*/}
-                {/*<FormRow*/}
-                {/*    labelName="last name"*/}
-                {/*    name="last_name"*/}
-                {/*    value={currentRecord ? currentRecord.last_name : null}*/}
-                {/*    onChange={handleChange}*/}
-                {/*/>*/}
-                {/*<FormRow*/}
-                {/*    labelName="current balance"*/}
-                {/*    name="balance"*/}
-                {/*    value={currentRecord ? currentRecord.balance : null}*/}
-                {/*    onChange={handleChange}*/}
-                {/*/>*/}
+                <FormRow
+                    labelName="first name"
+                    name="first_name"
+                    value={currentRecord ? currentRecord.first_name : null}
+                    onChange={handleChange}
+                />
+                <FormRow
+                    labelName="last name"
+                    name="last_name"
+                    value={currentRecord ? currentRecord.last_name : null}
+                    onChange={handleChange}
+                />
+                <FormRow
+                    labelName="current balance"
+                    name="balance"
+                    value={currentRecord ? currentRecord.balance : null}
+                    onChange={handleChange}
+                />
                 <FormRow
                     labelName="pay out"
                     name="amount"
                     value={currentRecord ? currentRecord.amount : null}
                     onChange={handleChange}
                 />
-                {/*<FormRow*/}
-                {/*    labelName="balance after payout"*/}
-                {/*    name="balanceAfterPayout"*/}
-                {/*    value={currentRecord ? currentRecord.balanceAfterPayout : null}*/}
-                {/*    onChange={handleChange}*/}
-                {/*/>*/}
+                <FormRow
+                    labelName="balance after payout"
+                    name="balanceAfterPayout"
+                    value={currentRecord ? currentRecord.balanceAfterPayout : null}
+                    onChange={handleChange}
+                />
 
                 <div className="comment">
                     <FormRow

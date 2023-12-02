@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\DateRange;
+use App\Models\CommissionPayoutRecord;
 use App\Models\CreditCardTransaction;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SalesPerformanceController extends Controller
@@ -14,7 +16,7 @@ class SalesPerformanceController extends Controller
     /**
      * Retrieve all credit card transaction data along with related merchant and user information.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function findAll(Request $request): JsonResponse
     {
@@ -36,8 +38,8 @@ class SalesPerformanceController extends Controller
     /**
      * Retrieve credit card transaction data based on date range and/or keyword search.
      *
-     * @param \Illuminate\Http\Request $request The HTTP request instance.
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request The HTTP request instance.
+     * @return JsonResponse
      */
     public function findByDateAndKeyword(Request $request): JsonResponse
     {
@@ -80,7 +82,7 @@ class SalesPerformanceController extends Controller
             'visa_gross_volume', 'visa_transaction_fee', 'master_gross_volume','master_transaction_fee',
             'total_commission', 'users.sales_id', 'users.first_name', 'users.last_name', 'merchants.commission_percentage')
             ->orderBy('pdate','asc')->orderBy('users.sales_id','asc')
-            ->paginate($perPage);;
+            ->paginate($perPage);
 
         return response()->json($performances);
     }
@@ -88,8 +90,8 @@ class SalesPerformanceController extends Controller
     /**
      * Generate a comprehensive report of credit card transactions based on the selected option.
      *
-     * @param \Illuminate\Http\Request $request The HTTP request instance.
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request The HTTP request instance.
+     * @return JsonResponse
      */
     public function reportAll(Request $request): JsonResponse
     {
@@ -196,8 +198,8 @@ class SalesPerformanceController extends Controller
     /**
      * Generate a comprehensive report of credit card transactions based on the date range and selected option.
      *
-     * @param \Illuminate\Http\Request $request The HTTP request instance.
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request The HTTP request instance.
+     * @return JsonResponse
      */
     public function reportByDate(Request $request): JsonResponse
     {
@@ -403,38 +405,92 @@ class SalesPerformanceController extends Controller
         return response()->json($report);
     }
 
-    //TODO: not finish yet(for salesperson page)
-    public function findAllBySalesperson(): JsonResponse
+    /**
+     * Retrieve salesperson data with additional information such as commissions, payouts, balance, and transaction data.
+     *
+     * @param Request $request
+     * @param int $userId User ID of the salesperson
+     *
+     * @return JsonResponse
+     */
+    public function findSalespersonByDateAndKeyword(Request $request, $userId): JsonResponse
     {
-        // Check if the user is authenticated
-        if (!auth()->check()) {
-            return response()->json(['error' => 'User not authenticated'], 401);
+        // Set the default values for page and perPage
+        $perPage = $request->input('perPage', 10);
+
+        // Extract date range, start date, end date, and keyword from the request
+        $dateRange = $request->input('date-range');
+        if ($dateRange) {
+            // Get start and end dates based on the provided date range
+            $startDate = DateRange::getStartAndEndDate($dateRange)['startDate'];
+            $endDate = DateRange::getStartAndEndDate($dateRange)['endDate'];
+        } else {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+        }
+        $keyword = $request->input('keyword');
+
+        // Start building the query
+        $query = CreditCardTransaction::join('merchants', 'credit_card_transactions.merchant_id', '=', 'merchants.merchant_id')
+            ->join('users', 'merchants.sales_id', '=', 'users.sales_id');
+
+        // Apply date range filter
+        if ($startDate && $endDate) {
+            $query = $query->whereBetween('pdate', [$startDate, $endDate]);
+            $commission = CommissionPayoutRecord::join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id')
+                ->select(DB::raw('SUM(amount) AS commission'))
+                ->where('users.id', '=', $userId)
+                ->where('type', '=', 'Commission')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->groupBy('users.sales_id')->first();
+            $payout = CommissionPayoutRecord::join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id')
+                ->select(DB::raw('SUM(amount) AS payout'))
+                ->where('users.id', '=', $userId)
+                ->where('type', '=', 'Payout')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->groupBy('users.sales_id')->first();
+        }else{
+            $commission = CommissionPayoutRecord::join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id')
+                ->select(DB::raw('SUM(amount) AS commission'))
+                ->where('users.id', '=', $userId)
+                ->where('type', '=', 'Commission')
+                ->groupBy('users.sales_id')->first();
+            $payout = CommissionPayoutRecord::join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id')
+                ->select(DB::raw('SUM(amount) AS payout'))
+                ->where('users.id', '=', $userId)
+                ->where('type', '=', 'Payout')
+                ->groupBy('users.sales_id')->first();
         }
 
-        // Get the ID of the authenticated user
-        $userId = auth()->id();
-        // Retrieve the user by ID
-        $user = User::find($userId);
-
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+        // Apply keyword search
+        if ($keyword) {
+            $query = $query->where(function ($q) use ($keyword) {
+                $q->where('credit_card_transactions.merchant_id', 'like', "%$keyword%")
+                    ->orWhere('DBA_name', 'like', "%$keyword%")
+                    ->orWhere('users.sales_id', 'like', "%$keyword%")
+                    ->orWhere('users.first_name', 'like', "%$keyword%")
+                    ->orWhere('users.last_name', 'like', "%$keyword%");
+            });
         }
-        // Access the user's name
-        $salesId = $user->sales_id;
 
-        // Load the related merchant and user data
-        $performances = CreditCardTransaction::with('merchant.user')
-            ->where('sales_id', '=', $salesId)
-            ->get();
+        $performances_data = $query->select('pdate','merchants.merchant_id', 'DBA_name',
+            'visa_commission', 'master_commission', 'total_commission',
+            'users.sales_id', 'users.first_name', 'users.last_name', 'merchants.commission_percentage')
+            ->where('users.id', '=', $userId)
+            ->orderBy('pdate','asc')->orderBy('users.sales_id','asc')->orderBy('merchants.merchant_id','asc')
+            ->paginate($perPage);
 
-        $performances->transform(function ($performance) {
-            $performance->sales_id = $performance->merchant->sales_id;
-            $performance->user_first_name = $performance->merchant->user->first_name;
-            $performance->user_last_name = $performance->merchant->user->last_name;
-            $performance->commission_percentage = $performance->merchant->commission_percentage;
-            $performance->DBA_name = $performance->merchant->DBA_name;
-            return $performance;
-        });
+        // Calculate balance based on commission and payout
+        if(!$commission){
+            $balance = null;
+        }elseif (!$payout){
+            $balance = $payout ? ['balance' => $commission->commission + $payout->payout] : ['balance' => $commission->commission] ;
+        }else{
+            $balance = ['balance' => $commission->commission + $payout->payout] ;
+        }
+
+        // Combine all relevant data for response
+        $performances = [$commission, $payout, $balance, $performances_data];
 
         return response()->json($performances);
     }

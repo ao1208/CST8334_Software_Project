@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {useState, useEffect} from "react";
 import {toast} from "react-toastify";
 import axios from "axios";
+import Cookies from 'js-cookie';
 
 const Login = () => {
     const [user, setUser] = useState({email: "", password: ""});
@@ -41,8 +42,11 @@ const Login = () => {
 
             if (response.status >= 200 && response.status < 300) {
                 const userData = await response.data;
-                // Assuming your server returns the user's role
+                // Assuming your server returns the user's id and role
+                const id = userData.id;
                 const role = userData.role;
+                // Store the user ID in a cookie
+                Cookies.set('userId', id);
                 // Check the user role and redirect accordingly
                 if (role === 1) {
                     navigate("/admin/dashboard");

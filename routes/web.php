@@ -50,9 +50,8 @@ Route::get('api/performance-search', [SalesPerformanceController::class, 'findBy
 Route::get('api/performance-report', [SalesPerformanceController::class, 'reportAll']);
 Route::get('api/performance-report-search', [SalesPerformanceController::class, 'reportByDate']);
 // Sales performance routes-Salesperson
-Route::middleware(['auth'])->group(function () {
-    Route::get('api/sales-performance', [SalesPerformanceController::class, 'findAllBySalesperson']);
-});
+Route::get('api/sales-performance/{userId}', [SalesPerformanceController::class, 'findSalespersonByDateAndKeyword']);
+Route::get('api/sales-performance-header/{userId}', [SalesPerformanceController::class, 'findSalespersonHeaderByDate']);
 // Commission payout routes-Administrator
 Route::get('api/payout', [CommissionPayoutController::class, 'findAll']);
 Route::get('api/payout/{id}', [CommissionPayoutController::class, 'getById']);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -12,7 +13,8 @@ class LoginController extends Controller
 
         if (auth()->attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
             $user = auth()->user();
-            return response()->json(['role' => $user->role]);
+            $userId = Auth::id();
+            return response()->json(['role' => $user->role, 'id' => $userId]);
         } else {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }

@@ -4,7 +4,7 @@ import {VscCalendar} from "react-icons/vsc";
 import {useState} from "react";
 import {dateRange} from "../utils/DateRange";
 
-const SalesSearch = ({setApiUrl, userId}) => {
+const AdminSalesSearch = ({setApiUrl}) => {
     // State variables to manage user inputs
     const [selectedDateRange, setSelectedDateRange] = useState("");
     const [startDate, setStartDate] = useState("");
@@ -32,7 +32,7 @@ const SalesSearch = ({setApiUrl, userId}) => {
     };
     // Handle search button
     const handleSearch = () => {
-        let url = `http://127.0.0.1:8000/api/sales-performance/${userId}`
+        let url = 'http://127.0.0.1:8000/api/performance-search'
         if (selectedDateRange) {
             if (selectedDateRange.toLowerCase() !== "custom") {
                 url += url.includes('?') ? `&date-range=${selectedDateRange}` : `?date-range=${selectedDateRange}`;
@@ -48,10 +48,9 @@ const SalesSearch = ({setApiUrl, userId}) => {
             url += url.includes('?') ? `&keyword=${keyword}` : `?keyword=${keyword}`;
         }
         if (!selectedDateRange && !startDate && !endDate && !keyword) {
-            setApiUrl(`http://127.0.0.1:8000/api/sales-performance/${userId}`);
+            setApiUrl('http://127.0.0.1:8000/api/performance');
         }
         setApiUrl(url);
-        console.log(url);
     }
 
     return (
@@ -223,4 +222,4 @@ const Wrapper = styled.section`
     }
   }
 `;
-export default SalesSearch;
+export default AdminSalesSearch;

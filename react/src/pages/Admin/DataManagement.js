@@ -65,7 +65,7 @@ const DataManagement = () => {
     //     return `${year}-${month}-${day}`;
     // };
 
-    const [selectedDateRange, setSelectedDateRange] = useState('This year');
+    const [selectedDateRange, setSelectedDateRange] = useState("");
 
     // Fetch data based on the selected date range from Laravel API
     const handleDateRangeChange = async () => {
@@ -86,6 +86,18 @@ const DataManagement = () => {
 
     // Handle import functionality
     const handleImport = () => {
+        // Check that dateFrom and dateTo are valid and not smaller than this year
+        const firstDateOfCurrentYear = new Date(new Date().getFullYear()-1, 11, 31);
+        const fromDate = new Date(dateFrom);
+        const toDate = new Date(dateTo);
+
+        if (isNaN(fromDate) || fromDate < firstDateOfCurrentYear) {
+            alert("Invalid dateFrom. dateFrom shouldn't be empty or smaller than this year." );
+        }
+
+        if (isNaN(toDate) || toDate < firstDateOfCurrentYear) {
+            alert(`Invalid dateTo. dateTo shouldn't be empty or smaller than this year. ${firstDateOfCurrentYear}`);
+        }
         // Make a request to the Google Sheets API endpoint
         axios.get(`http://127.0.0.1:8000/api/google-spreadsheet-api?dateFrom=${dateFrom}&dateTo=${dateTo}`)
             .then(response => {
@@ -163,7 +175,10 @@ const DataManagement = () => {
         <div className="date-range">
           <label htmlFor="date-range">display by: </label>
           <select name="date-range" id="date-range" value={selectedDateRange} onChange={(e) => setSelectedDateRange(e.target.value)}>
-            {dateRange.map((item) => (
+              <option value="" disabled selected>
+                  Date Range
+              </option>
+              {dateRange.map((item) => (
               <option key={item}>{item}</option>
             ))}
           </select>
@@ -191,8 +206,8 @@ const DataManagement = () => {
 
                   <td>
                     <button
-                      disabled={item.deleted_datetime ? true : false}
-                      style={{ color: item.deleted_datetime ? "#9e9e9e" : "" }}
+                      disabled={(!item.deleted_datetime && new Date(item.pdate).getFullYear() < new Date().getFullYear() && (item.pdate !== new Date().getFullYear()+"-01-01"))}
+                      style={{ color: ( item.deleted_datetime || new Date(item.pdate).getFullYear() >= new Date().getFullYear() || (item.pdate === new Date().getFullYear()+"-01-01") ) ? "" : "#9e9e9e" }}
                       className="deleteBtn"
                       onClick={() =>
                           handleDeleteConfirmation(item.id, item.pdate)

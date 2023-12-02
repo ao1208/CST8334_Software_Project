@@ -18,6 +18,12 @@ class UserController extends Controller
         return response()->json($users);
     }
 
+    /**
+     * Retrieves a user from the database based on the provided sales ID.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getById(Request $request): JsonResponse
     {
         $sales_id = $request->route('sales_id');
@@ -31,7 +37,7 @@ class UserController extends Controller
     /**
      * Search for users based on a provided keyword.
      *
-     * @param string $keyword
+     * @param Request $request
      * @return JsonResponse
      */
     public function findByKeyword(Request $request): JsonResponse
@@ -57,8 +63,9 @@ class UserController extends Controller
      * Create a new user.
      *
      * @param Request $request
+     * @return JsonResponse
      */
-    public function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         // Validate the request data
         $validatedData = $request->validate([
@@ -93,8 +100,10 @@ class UserController extends Controller
 
     /**
      * Get a new unique sales_id for a user.
+     *
+     * @return string
      */
-    public function getNewId()
+    public function getNewId(): string
     {
         // Get the last sales_id from the database
         $lastSalesID = User::orderBy('sales_id', 'desc')->value('sales_id');

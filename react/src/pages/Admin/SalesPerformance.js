@@ -1,5 +1,5 @@
 import { styled } from "styled-components";
-import { Heading, SalesSearch, Pagination, AdminNav } from "../../components";
+import {Heading, Pagination, AdminNav, AdminSalesSearch} from "../../components";
 import { salesPerformanceTableHeader } from "../../utils/TableColumnMapping";
 import { Link } from "react-router-dom";
 import {useEffect, useState} from "react";
@@ -16,7 +16,6 @@ const SalesPerformance = () => {
         const fetchRecords = async () => {
             try {
                 const response = await axios.get(apiUrl);
-                console.log(response.data.data);
                 setPerformanceData(response.data.data);
                 setItemsPerPage(response.data.per_page);
                 setNumOfPages(response.data.last_page);
@@ -65,7 +64,7 @@ const SalesPerformance = () => {
       <AdminNav />
       <Heading heading="sales performance" />
       <div className="filter">
-        <SalesSearch setApiUrl={setApiUrl}/>
+        <AdminSalesSearch setApiUrl={setApiUrl}/>
         <div className="report">
           <Link to="/admin/sales_performance_report">
             <button className="report-btn">
