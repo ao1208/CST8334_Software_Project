@@ -13,7 +13,7 @@ const FooterSummary = ({ totalCommission, totalPayout }) => {
         <div>
           <p className="holder"></p>
           <p>
-            Payout_Subtotal <span>- {formatNumber(totalPayout)}</span>
+            Payout_Subtotal <span>{formatNumber(totalPayout)}</span>
           </p>
         </div>
       </div>

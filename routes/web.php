@@ -44,6 +44,7 @@ Route::post('api/merchant', [MerchantController::class, 'create']);
 Route::put('api/merchant/{merchant_id}', [MerchantController::class, 'update']);
 Route::delete('api/merchant/{merchant_id}', [MerchantController::class, 'delete']);
 Route::get('api/merchant-search', [MerchantController::class, 'findByKeyword']);
+Route::get('api/checkUnique', [MerchantController::class, 'checkUnique']);
 // Sales performance routes-Administrator
 Route::get('api/performance', [SalesPerformanceController::class, 'findAll']);
 Route::get('api/performance-search', [SalesPerformanceController::class, 'findByDateAndKeyword']);
@@ -59,6 +60,8 @@ Route::post('api/payout', [CommissionPayoutController::class, 'create']);
 Route::put('api/payout/{id}', [CommissionPayoutController::class, 'update']);
 Route::delete('api/payout/{id}', [CommissionPayoutController::class, 'delete']);
 Route::get('api/payout-search', [CommissionPayoutController::class, 'findByDateAndKeyword']);
+// Commission payout routes-Salesperson
+Route::get('api/payout-search/{userId}', [CommissionPayoutController::class, 'findSalespersonByDateAndKeyword']);
 // Google Sheet API route for import data
 Route::get('api/google-spreadsheet-api', [GoogleSheetController::class, 'download']);
 // Data management routes
@@ -70,12 +73,12 @@ Route::get('api/data-search', [DataManagementController::class, 'findByDate']);
 //    return view('welcome');
 //});
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});
+//Route::middleware([
+//    'auth:sanctum',
+//    config('jetstream.auth_session'),
+//    'verified',
+//])->group(function () {
+//    Route::get('/dashboard', function () {
+//        return view('dashboard');
+//    })->name('dashboard');
+//});

@@ -1,41 +1,51 @@
 import styled from "styled-components";
 import {BiSearch} from "react-icons/bi";
 import {VscCalendar} from "react-icons/vsc";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {dateRange} from "../utils/DateRange";
+import {SalesPerformance} from "../pages/Admin";
+import Heading from "./Heading";
+import axios from "axios";
+import salesPerformance from "../pages/Admin/SalesPerformance";
+import CommissionPayout from "../pages/Admin/CommissionPayout";
+import {UserManagementForm} from "./index";
 
-const AdminSalesSearch = ({setApiUrl}) => {
-    // State variables to manage user inputs
-    const [selectedDateRange, setSelectedDateRange] = useState("");
+const SalesSearch = ({setApiUrl}) => {
+    const [selectPeriod, setSelectPeriod] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [keyword, setKeyword] = useState("");
+    const [search, setSearch] = useState("");
     const [dateDisabled, setDateDisabled] = useState(true);
-    // Handle changes in input fields
+
+    // filter and search function need to implement
     const handleChange = (e) => {
-        const name = e.target.name;
-        const value = e.target.value;
-        if (name === "selectedDateRange") {
+        const { name, value } = e.target;
+
+        if (name === "selectPeriod") {
             if (value === "custom") {
                 setDateDisabled(false);
             } else {
                 setDateDisabled(true);
+                setStartDate("");
+                setEndDate("");
             }
-            setSelectedDateRange(value);
+            setSelectPeriod(value);
         } else if (name === "startDate") {
             setStartDate(value);
         } else if (name === "endDate") {
             setEndDate(value);
-        } else if (name === "keyword") {
-            setKeyword(value);
+        } else if (name === "search") {
+            setSearch(value);
         }
     };
-    // Handle search button
-    const handleSearch = () => {
-        let url = 'http://127.0.0.1:8000/api/performance-search'
-        if (selectedDateRange) {
-            if (selectedDateRange.toLowerCase() !== "custom") {
-                url += url.includes('?') ? `&date-range=${selectedDateRange}` : `?date-range=${selectedDateRange}`;
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        let url = 'http://127.0.0.1:8000/api/payout-search';
+
+        if (selectPeriod) {
+            if (selectPeriod.toLowerCase() !== "custom") {
+                url += url.includes('?') ? `&date-range=${selectPeriod}` : `?date-range=${selectPeriod}`;
             }
         }
         if (startDate) {
@@ -44,22 +54,21 @@ const AdminSalesSearch = ({setApiUrl}) => {
         if (endDate) {
             url += url.includes('?') ? `&endDate=${endDate}` : `?endDate=${endDate}`;
         }
-        if (keyword) {
-            url += url.includes('?') ? `&keyword=${keyword}` : `?keyword=${keyword}`;
+        if (search) {
+            url += url.includes('?') ? `&keyword=${search}` : `?keyword=${search}`;
         }
-        if (!selectedDateRange && !startDate && !endDate && !keyword) {
-            setApiUrl('http://127.0.0.1:8000/api/performance');
+        if (!selectPeriod && !startDate && !endDate && !search) {
+            setApiUrl('http://127.0.0.1:8000/api/payout');
         }
         setApiUrl(url);
-    }
+    };
+
 
     return (
         <Wrapper>
             <div className="container">
-                <select name="selectedDateRange" onChange={handleChange}>
-                    <option value="">
-                        Select period
-                    </option>
+                <select name="selectPeriod" value={selectPeriod} onChange={handleChange}>
+                    <option value="">Select period</option>
                     {dateRange.map((item) => (
                         <option key={item} value={item}>
                             {item}
@@ -102,7 +111,8 @@ const AdminSalesSearch = ({setApiUrl}) => {
                     <BiSearch className="search-icon"/>
                     <input
                         type="search"
-                        name="keyword"
+                        name="search"
+                        value={search}
                         placeholder="Search ..."
                         onChange={handleChange}
                     />
@@ -110,10 +120,12 @@ const AdminSalesSearch = ({setApiUrl}) => {
                 <button
                     name="submit"
                     className="search-btn"
-                    onClick={handleSearch}
+                    onClick={handleSubmit}
+                    // disabled={!selectPeriod || (selectPeriod !== "custom" && !dateDisabled)}
                 >
                     search
                 </button>
+
             </div>
         </Wrapper>
     );
@@ -225,4 +237,4 @@ const Wrapper = styled.section`
         }
     }
 `;
-export default AdminSalesSearch;
+export default SalesSearch;

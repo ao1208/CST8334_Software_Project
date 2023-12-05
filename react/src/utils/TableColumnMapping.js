@@ -59,6 +59,19 @@ export const salesPerformanceTableHeader = [
   "commission",
 ];
 
+export const commissionPayoutTableHeader = [
+    "date",
+    "sales ID",
+    "sales name",
+    "merchant no.",
+    "merchant name",
+    "type",
+    "amount",
+    "balance",
+    "comment",
+    "action",
+];
+
 export const monthReportTableHeader = [
   "PDate",
   "sales ID",

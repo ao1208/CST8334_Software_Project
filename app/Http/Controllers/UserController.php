@@ -21,8 +21,8 @@ class UserController extends Controller
     /**
      * Retrieves a user from the database based on the provided sales ID.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
     public function getById(Request $request): JsonResponse
     {
@@ -32,6 +32,24 @@ class UserController extends Controller
             ->first();
 
         return response()->json($user);
+    }
+
+    public function checkSalesIDExistence($salesId)
+    {
+        try {
+            $user = User::where('sales_id', $salesId)->first();
+            if ($user) {
+                return response()->json([
+                    'exists' => true,
+                    'firstName' => $user->first_name,
+                    'lastName' => $user->last_name
+                ]);
+            } else {
+                return response()->json(['exists' => false]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while checking sales ID existence'], 500);
+        }
     }
 
     /**

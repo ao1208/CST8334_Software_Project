@@ -41,7 +41,7 @@ class MerchantController extends Controller
     /**
      * Get a merchant by ID.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return JsonResponse
      */
     public function getById(Request $request): JsonResponse
@@ -53,10 +53,39 @@ class MerchantController extends Controller
         return response()->json($merchant);
     }
 
+    public function checkUnique(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'merchant_id' => 'required|string|max:255',
+            'SCP_number' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 400);
+        }
+
+        $merchantId = $request->merchant_id;
+        $scpNumber = $request->SCP_number;
+
+        $existingMerchant = Merchant::where('merchant_id', $merchantId)
+            ->orWhere('SCP_number', $scpNumber)
+            ->first();
+
+        if ($existingMerchant) {
+            $conflictField = $existingMerchant->merchant_id === $merchantId ? 'merchant_id' : 'SCP_number';
+
+            // If a record with the same merchant_id or SCP_number exists, return false and the conflicting field
+            return response()->json(['isUnique' => false, 'conflictField' => $conflictField]);
+        }
+
+        // If no record found, return true
+        return response()->json(['isUnique' => true]);
+    }
+
     /**
      * Find merchants by keyword.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return JsonResponse
      */
     public function findByKeyword(Request $request): JsonResponse
@@ -94,7 +123,7 @@ class MerchantController extends Controller
     /**
      * Create a new merchant.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return JsonResponse
      */
     public function create(Request $request)
@@ -148,8 +177,8 @@ class MerchantController extends Controller
     /**
      * Update an existing merchant.
      *
-     * @param  Request  $request
-     * @param  string  $merchant_id
+     * @param Request $request
+     * @param string $merchant_id
      * @return JsonResponse
      */
     public function update(Request $request, $merchant_id): JsonResponse
@@ -202,7 +231,7 @@ class MerchantController extends Controller
     /**
      * Delete a merchant by ID.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return JsonResponse
      */
     public function delete(Request $request): JsonResponse

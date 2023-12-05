@@ -28,7 +28,8 @@ return new class extends Migration
                 ->on('users');
             $table->foreign('merchant_id')
                 ->references('merchant_id')
-                ->on('merchants');
+                ->on('merchants')
+                ->onDelete('set null');
         });
     }
 

@@ -2,78 +2,141 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DateRange;
 use App\Models\CommissionPayoutRecord;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class CommissionPayoutController extends Controller
 {
-    public function findAll()
+    public function findAll(Request $request)
     {
+        // Set the default values for page and perPage
+        $perPage = $request->input('perPage', 10);
+
         // Load the related merchant and user data
-        $comm_payouts = CommissionPayoutRecord::with('merchant.user')->get();
+        $comm_payouts = CommissionPayoutRecord::leftjoin('merchants', 'commission_payout_records.merchant_id', '=', 'merchants.merchant_id')
+            ->join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id')
+            ->select('commission_payout_records.id', 'commission_payout_records.date',
+                'users.sales_id', 'users.first_name', 'users.last_name',
+                'merchants.merchant_id', 'merchants.DBA_name',
+                'type', 'amount', 'balance', 'comment')
+            ->orderBy('date', 'asc')->orderBy('users.sales_id', 'asc')
+            ->paginate($perPage);
 
-        $comm_payouts->transform(function ($comm_payout) {
-            $comm_payout->first_name = $comm_payout->user->first_name;
-            $comm_payout->last_name = $comm_payout->user->last_name;
-            $comm_payout->DBA_name = $comm_payout->merchant->DBA_name;
-            return $comm_payout;
-        });
+        $subCommission = 0;
+        $subPayout = 0;
 
-        return response()->json($comm_payouts);
+        foreach ($comm_payouts as $payout) {
+            if ($payout->type === 'Commission') {
+                $subCommission += $payout->amount;
+            } elseif ($payout->type === 'Payout') {
+                $subPayout += $payout->amount;
+            }
+        }
+
+        $payouts = [['subtotalCommission' => $subCommission], ['subtotalPayout' => $subPayout], $comm_payouts];
+
+        return response()->json($payouts);
     }
+
+//    public function getById(Request $request): JsonResponse
+//    {
+//        $id = $request->route('id');
+//
+//        $payout = CommissionPayoutRecord::join('merchants', 'commission_payout_records.merchant_id', '=', 'merchants.merchant_id')
+//            ->join('users', 'merchants.sales_id', '=', 'users.sales_id')
+//            ->where('commission_payout_records.id', '=', $id)
+//            ->first();
+//
+//        return response()->json($payout);
+//    }
 
     public function getById(Request $request): JsonResponse
     {
         $id = $request->route('id');
 
-        $payout = CommissionPayoutRecord::join('merchants', 'commission_payout_records.merchant_id', '=', 'merchants.merchant_id')
-            ->join('users', 'merchants.sales_id', '=', 'users.sales_id')
-            ->where('commission_payout_records.id', '=', $id)
-            ->first();
+        try {
+            $payout = CommissionPayoutRecord::select(
+                'commission_payout_records.id', // select all columns from the main table
+                'commission_payout_records.date',
+                'commission_payout_records.sales_id',
+                'commission_payout_records.merchant_id',
+                'commission_payout_records.type',
+                'commission_payout_records.amount',
+                'commission_payout_records.balance',
+                'commission_payout_records.comment',
+                'users.first_name',
+                'users.last_name',
+            )
+                ->join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id')
+                ->where('commission_payout_records.id', $id)
+                ->firstOrFail(); // Use firstOrFail to throw an exception if not found
 
-        return response()->json($payout);
+            return response()->json($payout);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Payout not found'], 404);
+        }
     }
 
     public function findByDateAndKeyword(Request $request): JsonResponse
     {
+        // Set the default values for page and perPage
+        $perPage = $request->input('perPage', 10);
 
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
+        // Extract date range, start date, end date, and keyword from the request
+        $dateRange = $request->input('date-range');
+        if ($dateRange) {
+            // Get start and end dates based on the provided date range
+            $startDate = DateRange::getStartAndEndDate($dateRange)['startDate'];
+            $endDate = DateRange::getStartAndEndDate($dateRange)['endDate'];
+        } else {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+        }
         $keyword = $request->input('keyword');
 
         // Start building the query
-        $query = CommissionPayoutRecord::with('merchant.user');
+        $query = CommissionPayoutRecord::leftjoin('merchants', 'commission_payout_records.merchant_id', '=', 'merchants.merchant_id')
+            ->join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id');
 
         // Apply date range filter
         if ($startDate && $endDate) {
-            $query->whereBetween('pdate', [$startDate, $endDate]);
+            $query->whereBetween('date', [$startDate, $endDate]);
         }
 
         // Apply keyword search
         if ($keyword) {
-            $query = $query->whereHas('merchant', function ($merchantQuery) use ($keyword) {
-                $merchantQuery->where('merchant_id', 'like', "%$keyword%")
-                    ->orwhere('DBA_name', 'like', "%$keyword%")
-                    ->orWhereHas('user', function ($userQuery) use ($keyword) {
-                        $userQuery->where('sales_id', 'like', "%$keyword%")
-                            ->orwhere('first_name', 'like', "%$keyword%")
-                            ->orwhere('last_name', 'like', "%$keyword%");
-                    });
+            $query = $query->where(function ($q) use ($keyword) {
+                $q->where('merchants.merchant_id', 'like', "%$keyword%")
+                    ->orwhere('merchants.DBA_name', 'like', "%$keyword%")
+                    ->orwhere('users.sales_id', 'like', "%$keyword%")
+                    ->orwhere('users.first_name', 'like', "%$keyword%")
+                    ->orwhere('users.last_name', 'like', "%$keyword%");
             });
         }
 
-        // Execute the query and transform the results
-        $payouts = $query->get();
+        $payouts_data = $query->select('commission_payout_records.id', 'commission_payout_records.date',
+            'users.sales_id', 'users.first_name', 'users.last_name',
+            'merchants.merchant_id', 'merchants.DBA_name', 'type', 'amount', 'balance', 'comment')
+            ->orderBy('date', 'asc')->orderBy('users.sales_id', 'asc')
+            ->paginate($perPage);
 
-        $payouts->transform(function ($payout) {
-            $payout->sales_id = $payout->merchant->sales_id;
-            $payout->user_first_name = $payout->merchant->user->first_name;
-            $payout->user_last_name = $payout->merchant->user->last_name;
-            $payout->commission_percentage = $payout->merchant->commission_percentage;
-            $payout->DBA_name = $payout->merchant->DBA_name;
-            return $payout;
-        });
+        $subCommission = 0;
+        $subPayout = 0;
+
+        foreach ($payouts_data as $payout) {
+            if ($payout->type === 'Commission') {
+                $subCommission += $payout->amount;
+            } elseif ($payout->type === 'Payout') {
+                $subPayout += $payout->amount;
+            }
+        }
+
+        $payouts = [['subtotalCommission' => $subCommission], ['subtotalPayout' => $subPayout], $payouts_data];
 
         return response()->json($payouts);
     }
@@ -81,49 +144,78 @@ class CommissionPayoutController extends Controller
     public function create(Request $request)
     {
         // Validate the request data
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'date' => 'required|date',
-            'sales_id' => 'required|string|max:255|unique:users',
+            'sales_id' => 'required|string|max:255',
             'amount' => 'required|numeric',
-            'comment' => 'string',
+            'balance' => 'required|numeric',
+            'comment' => 'string|max:255'
         ]);
 
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 400);
+        }
+        $validatedData = $validator->validated();
         $validatedData['type'] = 'Payout';
 
         // Create a new payout into Commission Payout Records table
-        $payout = CommissionPayoutRecord::create($validatedData);
+        try {
 
-        return response()->json($validatedData, 201);
+            $validatedData = [
+                'date' => $request->date,
+                'sales_id' => $request->sales_id,
+                'type' => 'Payout',
+                'amount' => $request->amount,
+                'balance' => $request->balance,
+                'comment' => $request->comment,
+            ];
+
+            DB::beginTransaction();
+            // Create a new payout into Commission Payout Records table
+            $payout = CommissionPayoutRecord::create($validatedData);
+            DB::commit();
+
+            return response()->json(['message' => 'Commission Payout Record created successfully'], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to create Commission Payout Record', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    public function update(Request $request): JsonResponse
+    public
+    function update(Request $request): JsonResponse
     {
         $id = $request->route('id');
 
         // Validate the request data
         $validatedData = $request->validate([
             'date' => 'required|date',
-            'sales_id' => 'required|string|max:255|unique:users',
+            'sales_id' => 'required|string',
             'amount' => 'required|numeric',
+            'balance' => 'required|numeric',
+            'comment' => 'string'
         ]);
 
-        // Find the user by ID
-        $payout = CommissionPayoutRecord::where('id', '=', $id)->first();
+        try {
+            Log::info('ID being used:', ['id' => $id]);
+            $payout = CommissionPayoutRecord::findOrFail($id);
 
-        if (!$payout) {
-            return response()->json(['message' => 'Payout not found'], 404);
+            // Update the payout data with validated fields
+            $payout->fill($validatedData);
+
+            // Start a database transaction
+            DB::beginTransaction();
+            $payout->save(); // Save the updated payout
+            DB::commit(); // Commit the transaction
+            return response()->json(['message' => 'Payout updated successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback the transaction in case of failure
+            return response()->json(['message' => 'Failed to update Payout', 'error' => $e->getMessage()], 500);
         }
-
-        // Update the payout data
-        $payout->date = $validatedData['date'];
-        $payout->sales_id = $validatedData['sales_id'];
-        $payout->amount = $validatedData['amount'];
-        $payout->update();
-
-        return response()->json(['message' => 'Payout updated successfully']);
     }
 
-    public function delete(Request $request): JsonResponse
+    public
+    function delete(Request $request): JsonResponse
     {
         $id = $request->route('id');
         // Find the user by ID
@@ -134,8 +226,69 @@ class CommissionPayoutController extends Controller
         }
 
         // Delete the user
+        DB::beginTransaction();
         $payout->delete();
-
+        DB::commit();
         return response()->json(['message' => 'Payout deleted successfully']);
+    }
+
+    public function findSalespersonByDateAndKeyword(Request $request, $userId): JsonResponse
+    {
+        // Set the default values for page and perPage
+        $perPage = $request->input('perPage', 10);
+
+        // Extract date range, start date, end date, and keyword from the request
+        $dateRange = $request->input('date-range');
+        if ($dateRange) {
+            // Get start and end dates based on the provided date range
+            $startDate = DateRange::getStartAndEndDate($dateRange)['startDate'];
+            $endDate = DateRange::getStartAndEndDate($dateRange)['endDate'];
+        } else {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+        }
+        $keyword = $request->input('keyword');
+
+        // Start building the query
+        $query = CommissionPayoutRecord::leftjoin('merchants', 'commission_payout_records.merchant_id', '=', 'merchants.merchant_id')
+            ->join('users', 'commission_payout_records.sales_id', '=', 'users.sales_id');
+
+        // Apply date range filter
+        if ($startDate && $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        // Apply keyword search
+        if ($keyword) {
+            $query = $query->where(function ($q) use ($keyword) {
+                $q->where('merchants.merchant_id', 'like', "%$keyword%")
+                    ->orwhere('merchants.DBA_name', 'like', "%$keyword%")
+                    ->orwhere('users.sales_id', 'like', "%$keyword%")
+                    ->orwhere('users.first_name', 'like', "%$keyword%")
+                    ->orwhere('users.last_name', 'like', "%$keyword%");
+            });
+        }
+
+        $payouts_data = $query->select('commission_payout_records.id', 'commission_payout_records.date',
+            'users.sales_id', 'users.first_name', 'users.last_name',
+            'merchants.merchant_id', 'merchants.DBA_name', 'type', 'amount', 'balance', 'comment')
+            ->where('users.id', '=', $userId)
+            ->orderBy('date', 'asc')->orderBy('users.sales_id', 'asc')
+            ->paginate($perPage);
+
+        $subCommission = 0;
+        $subPayout = 0;
+
+        foreach ($payouts_data as $payout) {
+            if ($payout->type === 'Commission') {
+                $subCommission += $payout->amount;
+            } elseif ($payout->type === 'Payout') {
+                $subPayout += $payout->amount;
+            }
+        }
+
+        $payouts = [['subtotalCommission' => $subCommission], ['subtotalPayout' => $subPayout], $payouts_data];
+
+        return response()->json($payouts);
     }
 }

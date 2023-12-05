@@ -31,40 +31,38 @@ const MappingCreateUser = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post(
-                'http://127.0.0.1:8000/api/merchant',
-                currentUserMapping, // pass the data directly
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+            const checkUnique = await axios.get('http://127.0.0.1:8000/api/checkUnique', {
+                params: {
+                    merchant_id: currentUserMapping.merchant_id,
+                    SCP_number: currentUserMapping.SCP_number
                 }
-            );
+            });
 
-            // Check if the response status is in the range 200-299
-            if (response.status >= 200 && response.status < 300) {
-                console.log('Success:', response.data);
-                // Redirect after successful save
-                window.location = '/admin/mapping_management';
+            if (checkUnique.data.isUnique) {
+                // If data is unique, proceed to submit
+                const response = await axios.post(
+                    'http://127.0.0.1:8000/api/merchant',
+                    currentUserMapping,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                if (response.status >= 200 && response.status < 300) {
+                    console.log('Success:', response.data);
+                    window.location = '/admin/mapping_management';
+                } else {
+                    throw new Error(`Server responded with status ${response.status}`);
+                }
             } else {
-                // Handle non-successful response
-                throw new Error(`Server responded with status ${response.status}`);
+                // Data is not unique, show an alert with the conflicting field
+                const conflictField = checkUnique.data.conflictField;
+                window.alert(`${conflictField.toUpperCase()} should be unique.`);
             }
         } catch (error) {
             console.error('Error:', error);
-            if (error.response) {
-                // The request was made and the server responded with a non-2xx status code
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-                console.error('Response headers:', error.response.headers);
-            } else if (error.request) {
-                // The request was made but no response was received
-                console.error('No response received. Request details:', error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.error('Error setting up the request:', error.message);
-            }
-            window.alert(error.message);
+            // Handle errors as before
         }
     };
     return (

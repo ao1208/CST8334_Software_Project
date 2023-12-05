@@ -3,9 +3,12 @@ import {useEffect, useState} from "react";
 import FormRow from "../../components/FormRow";
 import {styled} from "styled-components";
 import axios from "axios";
+import debounce from 'lodash/debounce';
+import {formatNumber} from "../../utils/FormatNumber";
 
 const initialRecord = {
     salesID: "",
+    merchantid: "",
     date: "",
     firstName: "",
     lastName: "",
@@ -15,65 +18,165 @@ const initialRecord = {
     comment: "",
 };
 const CommissionPayoutUpdate = () => {
-  const { recordId } = useParams();
-  const [currentRecord, setCurrentRecord] = useState(initialRecord);
+    const { recordId } = useParams();
+    const [currentRecord, setCurrentRecord] = useState(initialRecord);
+    const [salesIdInput, setSalesIdInput] = useState('');
+    const [currentBalance, setCurrentBalance] = useState(0);
+    const [payout, setPayout] = useState(0);
+    const [balanceAfterPayout, setBalanceAfterPayout] = useState(0);
+    const debouncedHandleSalesId = debounce(async (salesId) => {
+        await handleSalesId(salesId);
+    }, 500);
+    const handleSalesId = async (salesId) => {
 
-  useEffect(() => {
-        // Fetch payout data from the Laravel API
+        try {
+            const userDetailsResponse = await axios.get(`http://127.0.0.1:8000/api/user/${salesId}`);
+            const userData = userDetailsResponse.data;
+            console.log("path" , userDetailsResponse);
+            console.log("data",userData);
+            console.log("sales id", salesId)
+
+            if (userData && userData.first_name && userData.last_name) {
+                const { first_name: firstName, last_name: lastName } = userData;
+
+                setCurrentRecord((prevRecord) => ({
+                    ...prevRecord,
+                    first_name: firstName,
+                    last_name: lastName,
+                }));
+
+                console.log('User exists.');
+                console.log('First Name:', firstName);
+                console.log('Last Name:', lastName);
+
+            } else {
+                setCurrentRecord((prevRecord) => ({
+                    ...prevRecord,
+                    first_name: '',
+                    last_name: '',
+                }));
+                console.log('User does not exist.');
+
+            }
+        } catch (error) {
+            console.error('Error checking sales ID existence:', error);
+            console.log('Response data:', error.response.data);
+
+        }
+    };
+    useEffect(() => {
+        if (salesIdInput) {
+            const timeoutId = setTimeout(() => {
+                handleSalesId(salesIdInput);
+            }, 1000);
+            return () => clearTimeout(timeoutId);
+        }
+        if (payout) {
+            const timeoutId = setTimeout(() => {
+                setBalanceAfterPayout((currentBalance - payout).toFixed(2));
+            }, 1000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [salesIdInput, payout]);
+
+    useEffect(() => {
+
         axios.get(`http://127.0.0.1:8000/api/payout/${recordId}`)
             .then(response => {
-                setCurrentRecord(response.data); // Set the payout data in state
+                console.log("record id is " + recordId);
+                setCurrentRecord(response.data);
+                setCurrentBalance(response.data.balance + response.data.amount);
+                setBalanceAfterPayout(response.data.balance);
             })
             .catch((error) => {
                 console.error("Error fetching payout data: ", error);
             });
-  }, [recordId]);
+
+    }, [recordId]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
         setCurrentRecord((prevRecord) => ({
             ...prevRecord,
             [name]: value,
+
         }));
+        if (name === 'sales_id') {
+            setSalesIdInput(value);
+            debouncedHandleSalesId(value);
+        }
+        if (name === 'amount') {
+            setPayout(value);
+            if(isNaN(payout)){
+                alert('Please enter a valid payout!');
+            }else{
+                const newBalanceAfterPayout = (currentBalance - payout).toFixed(2);
+                setBalanceAfterPayout(newBalanceAfterPayout);
+            }
+        }
     };
 
-    // Update payout data into DB through Laravel API
     const handleSubmit = async (e) => {
-
         e.preventDefault();
 
         try {
+            const { id: recordId, balanceAfterPayout, balance } = currentRecord;
+
+            // Validate if amount is greater than balance
+            if (payout > currentBalance) {
+                alert('Payout cannot be greater than the current balance.');
+                return;
+            }
+
+            let requestBody = { ...currentRecord };
+
+            if (typeof balanceAfterPayout !== 'undefined' && balanceAfterPayout !== null && balanceAfterPayout !== '') {
+                requestBody = {
+                    ...requestBody,
+                    balance: balanceAfterPayout,
+                };
+            } else {
+                requestBody = {
+                    ...requestBody,
+                    balance: balance,
+                };
+            }
+
+            console.log('Request Body:', JSON.stringify(requestBody));
             const response = await fetch(`http://127.0.0.1:8000/api/payout/${recordId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(setCurrentRecord),
+                body: JSON.stringify(requestBody),
             });
-
             if (!response.ok) {
-                throw new Error('Network response was not ok. Status: ${response.status}');
+                const errorMessage = await response.text();
+                throw new Error(errorMessage || 'Failed to update record');
             }
-            const data = await response.json();
-            console.log('Success:', data);
 
-            window.location = "/admin/sales_payout";
-
+            const updatedRecordId = recordId;
+            console.log('recordId after the update:', updatedRecordId);
+            window.location = '/admin/sales_payout';
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error occurred:', error.message || error);
         }
     };
 
     return (
         <Wrapper className="dashboard-container">
             <h1>commission payout - Update</h1>
-            {/* form action need to implement */}
             <form onSubmit={handleSubmit}>
                 <FormRow
                     labelName="sales ID"
                     name="sales_id"
                     value={currentRecord ? currentRecord.sales_id : null}
+                    onChange={handleChange}
+                />
+                <FormRow
+                    labelName="Merchant Id"
+                    name="merchant_id"
+                    value={currentRecord ? currentRecord.merchant_id : null}
                     onChange={handleChange}
                 />
                 <FormRow
@@ -98,19 +201,19 @@ const CommissionPayoutUpdate = () => {
                 <FormRow
                     labelName="current balance"
                     name="balance"
-                    value={currentRecord ? currentRecord.balance : null}
-                    onChange={handleChange}
+                    value={currentBalance ? currentBalance: null}
                 />
                 <FormRow
                     labelName="pay out"
                     name="amount"
                     value={currentRecord ? currentRecord.amount : null}
                     onChange={handleChange}
+                    validate
                 />
                 <FormRow
                     labelName="balance after payout"
                     name="balanceAfterPayout"
-                    value={currentRecord ? currentRecord.balanceAfterPayout : null}
+                    value={balanceAfterPayout ? balanceAfterPayout : null}
                     onChange={handleChange}
                 />
 
@@ -127,16 +230,19 @@ const CommissionPayoutUpdate = () => {
                     <Link to="/admin/sales_payout">
                         <button className="cancelBtn">cancel</button>
                     </Link>
-                    {/* save function need to implement */}
                     <button
                         className={`saveBtn ${
-                            currentRecord === initialRecord ? "disable" : ""
+                            JSON.stringify(currentRecord) === JSON.stringify(initialRecord) ? "disable" : ""
                         }`}
-                        disabled={currentRecord === initialRecord}
-                        onClick={() => window.alert("Function need to implement")}
+                        onClick={
+                            JSON.stringify(currentRecord) === JSON.stringify(initialRecord)
+                                ? null
+                                : handleSubmit
+                        }
                     >
                         save
                     </button>
+
                 </div>
             </form>
         </Wrapper>
@@ -144,34 +250,34 @@ const CommissionPayoutUpdate = () => {
 };
 
 const Wrapper = styled.section`
-  h1 {
-    color: #000000;
-    text-transform: capitalize;
-    margin: 1.5rem 0;
-  }
-
-  form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    row-gap: 2rem;
-    column-gap: 3rem;
-  }
-
-  form .comment {
-    grid-column: span 2;
-  }
-  .disable {
-    color: #ffffff;
-    background-color: #9e9e9e;
-    border-color: #9e9e9e;
-  }
-  @media (max-width: 576px) {
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    h1 {
+        color: #000000;
+        text-transform: capitalize;
+        margin: 1.5rem 0;
     }
-  }
+
+    form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        row-gap: 2rem;
+        column-gap: 3rem;
+    }
+
+    form .comment {
+        grid-column: span 2;
+    }
+    .disable {
+        color: #ffffff;
+        background-color: #9e9e9e;
+        border-color: #9e9e9e;
+    }
+    @media (max-width: 576px) {
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
 `;
 
 export default CommissionPayoutUpdate;
