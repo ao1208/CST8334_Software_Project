@@ -1,0 +1,13 @@
+export { default as Dashboard } from "./Dashboard";
+export { default as MappingManagement } from "./MappingManagement";
+export { default as SalesPayout } from "./CommissionPayout";
+export { default as SalesPerformance } from "./SalesPerformance";
+export { default as UserManagement } from "./UserManagement";
+export { default as DataManagement } from "./DataManagement";
+export { default as CreateUser } from "./CreateUser";
+export { default as UpdateUser } from "./UpdateUser";
+export { default as MappingCreateUser } from "./MappingCreateUser";
+export { default as MappingUpdateUser } from "./MappingUpdateUser";
+export { default as PerformanceReport } from "./PerformanceReport";
+export { default as CommissionPayoutCreate } from "./CommissionPayoutCreate";
+export { default as CommissionPayoutUpdate } from "./CommissionPayoutUpdate";
