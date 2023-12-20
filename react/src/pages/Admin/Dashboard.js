@@ -3,6 +3,7 @@ import { TopSales, CommissionChart, AdminNav } from "../../components";
 import { dateRange } from "../../utils/DateRange";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const Dashboard = () => {
 
@@ -12,7 +13,7 @@ const Dashboard = () => {
 
     // Fetch user list data from the Laravel API
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/dashboard-salesperson-list')
+        axios.get(`${API_BASE_URL}/dashboard-salesperson-list`)
             .then((response) => {
                 setSalesperson(response.data);
             })

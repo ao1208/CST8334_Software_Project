@@ -8,6 +8,7 @@ import {
 import {BsChevronDown, BsChevronRight} from "react-icons/bs";
 import {formatNumber} from "../../utils/FormatNumber";
 import axios from 'axios';
+import API_BASE_URL from "../../utils/apiConfig";
 
 const PerformanceReport = () => {
     const [selectedOption, setSelectedOption] = useState("month");
@@ -24,7 +25,7 @@ const PerformanceReport = () => {
 
     // Fetch data from the Laravel API
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/performance-report')
+        axios.get(`${API_BASE_URL}/performance-report`)
             .then((response) => {
                 setDataByMonthly(response.data);
             })
@@ -34,7 +35,7 @@ const PerformanceReport = () => {
     }, []); // Trigger the effect only once on component mount
 
     const handleOptionChange = async (event)  => {
-        let url = `http://127.0.0.1:8000/api/performance-report?option=${selectedOption}`;
+        let url = `${API_BASE_URL}/performance-report?option=${selectedOption}`;
         try {
             const response = await axios.get(url);
             if (selectedOption === "month") {
@@ -68,11 +69,11 @@ const PerformanceReport = () => {
     const handleDateSearch = async () => {
         try {
             if (selectedOption === "month") {
-                const response = await axios.get(`http://127.0.0.1:8000/api/performance-report-search?option=month&startDate=${dateFrom}&endDate=${dateTo}`);
+                const response = await axios.get(`${API_BASE_URL}/performance-report-search?option=month&startDate=${dateFrom}&endDate=${dateTo}`);
                 setDataByMonthly(response.data);
             }
             if (selectedOption === "salesperson") {
-                const response = await axios.get(`http://127.0.0.1:8000/api/performance-report-search?option=salesperson&startDate=${dateFrom}&endDate=${dateTo}`);
+                const response = await axios.get(`${API_BASE_URL}/performance-report-search?option=salesperson&startDate=${dateFrom}&endDate=${dateTo}`);
                 setDataBySalesperson(response.data);
             }
         } catch (error) {

@@ -4,6 +4,7 @@ import {BiSearch} from "react-icons/bi";
 import FormRow from "../../components/FormRow";
 import {Link} from "react-router-dom";
 import {styled} from "styled-components";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const initialUserMapping = {
     merchant_id: "",
@@ -31,7 +32,7 @@ const MappingCreateUser = () => {
         e.preventDefault();
 
         try {
-            const checkUnique = await axios.get('http://127.0.0.1:8000/api/checkUnique', {
+            const checkUnique = await axios.get(`${API_BASE_URL}/checkUnique`, {
                 params: {
                     merchant_id: currentUserMapping.merchant_id,
                     SCP_number: currentUserMapping.SCP_number
@@ -41,7 +42,7 @@ const MappingCreateUser = () => {
             if (checkUnique.data.isUnique) {
                 // If data is unique, proceed to submit
                 const response = await axios.post(
-                    'http://127.0.0.1:8000/api/merchant',
+                    `${API_BASE_URL}/merchant`,
                     currentUserMapping,
                     {
                         headers: {

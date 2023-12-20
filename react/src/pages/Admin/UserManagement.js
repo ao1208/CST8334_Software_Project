@@ -11,11 +11,12 @@ import {PiNotePencil} from "react-icons/pi";
 import {Link} from "react-router-dom";
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../../utils/apiConfig';
 
 const UserManagement = () => {
 
     const [userData, setUserData] = useState([]);
-    const [apiUrl, setApiUrl] = useState('http://127.0.0.1:8000/api/user');
+    const [apiUrl, setApiUrl] = useState(`${API_BASE_URL}/user`);
 
     useEffect(() => {
         const fetchRecords = async () => {
@@ -38,7 +39,7 @@ const UserManagement = () => {
 
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`http://127.0.0.1:8000/api/user/${salesId}`);
+                const response = await axios.delete(`${API_BASE_URL}/user/${salesId}`);
                 if (response.status === 200) {
                     console.log('Record deleted successfully');
                 }

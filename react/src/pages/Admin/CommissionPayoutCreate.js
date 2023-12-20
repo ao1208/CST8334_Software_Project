@@ -4,6 +4,7 @@ import axios from "axios";
 import FormRow from "../../components/FormRow";
 import {styled} from "styled-components";
 import debounce from 'lodash/debounce';
+import API_BASE_URL from "../../utils/apiConfig";
 
 const initialRecord = {
     salesID: "",
@@ -27,7 +28,7 @@ const CommissionPayoutCreate = () => {
     const handleSalesId = async (salesId) => {
 
         try {
-            const userDetailsResponse = await axios.get(`http://127.0.0.1:8000/api/user/${salesId}`);
+            const userDetailsResponse = await axios.get(`${API_BASE_URL}/user/${salesId}`);
             const userData = userDetailsResponse.data;
             console.log("path" , userDetailsResponse);
             console.log("data",userData);
@@ -126,7 +127,7 @@ const CommissionPayoutCreate = () => {
             };
 
             const response = await axios.post(
-                'http://127.0.0.1:8000/api/payout',
+                `${API_BASE_URL}/payout`,
                 updatedRecord,
                 {
                     headers: {
@@ -163,15 +164,12 @@ const CommissionPayoutCreate = () => {
                     onChange={handleChange}
 
                 />
-
-
-
-                <FormRow
-                    labelName="Merchant Id"
-                    name="merchant_id"
-                    value={currentRecord ? currentRecord.merchant_id : null}
-                    onChange={handleChange}
-                />
+                {/*<FormRow*/}
+                {/*    labelName="Merchant Id"*/}
+                {/*    name="merchant_id"*/}
+                {/*    value={currentRecord ? currentRecord.merchant_id : null}*/}
+                {/*    onChange={handleChange}*/}
+                {/*/>*/}
                 <FormRow
                     type="date"
                     labelName="date"

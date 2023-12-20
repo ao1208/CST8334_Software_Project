@@ -7,6 +7,7 @@ import {useState, useEffect} from "react";
 import {toast} from "react-toastify";
 import axios from "axios";
 import Cookies from 'js-cookie';
+import API_BASE_URL from "../utils/apiConfig";
 
 const Login = () => {
     const [user, setUser] = useState({email: "", password: ""});
@@ -32,7 +33,7 @@ const Login = () => {
         }
         try {
             const response = await axios.post(
-                "http://127.0.0.1:8000/api/login",
+                `${API_BASE_URL}/login`,
                 user, {
                     headers: {
                         "Content-Type": "application/json",

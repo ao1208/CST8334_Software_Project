@@ -19,8 +19,20 @@ namespace Google\Service\DiscoveryEngine;
 
 class GoogleCloudDiscoveryengineV1betaConverseConversationRequest extends \Google\Model
 {
+  /**
+   * @var GoogleCloudDiscoveryengineV1betaConversation
+   */
+  public $conversation;
   protected $conversationType = GoogleCloudDiscoveryengineV1betaConversation::class;
   protected $conversationDataType = '';
+  /**
+   * @var string
+   */
+  public $filter;
+  /**
+   * @var GoogleCloudDiscoveryengineV1betaTextInput
+   */
+  public $query;
   protected $queryType = GoogleCloudDiscoveryengineV1betaTextInput::class;
   protected $queryDataType = '';
   /**
@@ -31,6 +43,10 @@ class GoogleCloudDiscoveryengineV1betaConverseConversationRequest extends \Googl
    * @var string
    */
   public $servingConfig;
+  /**
+   * @var GoogleCloudDiscoveryengineV1betaSearchRequestContentSearchSpecSummarySpec
+   */
+  public $summarySpec;
   protected $summarySpecType = GoogleCloudDiscoveryengineV1betaSearchRequestContentSearchSpecSummarySpec::class;
   protected $summarySpecDataType = '';
   /**
@@ -51,6 +67,20 @@ class GoogleCloudDiscoveryengineV1betaConverseConversationRequest extends \Googl
   public function getConversation()
   {
     return $this->conversation;
+  }
+  /**
+   * @param string
+   */
+  public function setFilter($filter)
+  {
+    $this->filter = $filter;
+  }
+  /**
+   * @return string
+   */
+  public function getFilter()
+  {
+    return $this->filter;
   }
   /**
    * @param GoogleCloudDiscoveryengineV1betaTextInput

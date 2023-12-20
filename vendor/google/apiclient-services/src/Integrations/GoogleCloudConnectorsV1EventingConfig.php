@@ -20,12 +20,18 @@ namespace Google\Service\Integrations;
 class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
 {
   protected $collection_key = 'additionalVariables';
+  /**
+   * @var GoogleCloudConnectorsV1ConfigVariable[]
+   */
+  public $additionalVariables;
   protected $additionalVariablesType = GoogleCloudConnectorsV1ConfigVariable::class;
   protected $additionalVariablesDataType = 'array';
+  /**
+   * @var GoogleCloudConnectorsV1AuthConfig
+   */
+  public $authConfig;
   protected $authConfigType = GoogleCloudConnectorsV1AuthConfig::class;
   protected $authConfigDataType = '';
-  protected $encryptionKeyType = GoogleCloudConnectorsV1ConfigVariable::class;
-  protected $encryptionKeyDataType = '';
   /**
    * @var bool
    */
@@ -35,9 +41,19 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
    */
   public $eventsListenerIngressEndpoint;
   /**
+   * @var GoogleCloudConnectorsV1AuthConfig
+   */
+  public $listenerAuthConfig;
+  protected $listenerAuthConfigType = GoogleCloudConnectorsV1AuthConfig::class;
+  protected $listenerAuthConfigDataType = '';
+  /**
    * @var bool
    */
   public $privateConnectivityEnabled;
+  /**
+   * @var GoogleCloudConnectorsV1DestinationConfig
+   */
+  public $registrationDestinationConfig;
   protected $registrationDestinationConfigType = GoogleCloudConnectorsV1DestinationConfig::class;
   protected $registrationDestinationConfigDataType = '';
 
@@ -70,20 +86,6 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->authConfig;
   }
   /**
-   * @param GoogleCloudConnectorsV1ConfigVariable
-   */
-  public function setEncryptionKey(GoogleCloudConnectorsV1ConfigVariable $encryptionKey)
-  {
-    $this->encryptionKey = $encryptionKey;
-  }
-  /**
-   * @return GoogleCloudConnectorsV1ConfigVariable
-   */
-  public function getEncryptionKey()
-  {
-    return $this->encryptionKey;
-  }
-  /**
    * @param bool
    */
   public function setEnrichmentEnabled($enrichmentEnabled)
@@ -110,6 +112,20 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
   public function getEventsListenerIngressEndpoint()
   {
     return $this->eventsListenerIngressEndpoint;
+  }
+  /**
+   * @param GoogleCloudConnectorsV1AuthConfig
+   */
+  public function setListenerAuthConfig(GoogleCloudConnectorsV1AuthConfig $listenerAuthConfig)
+  {
+    $this->listenerAuthConfig = $listenerAuthConfig;
+  }
+  /**
+   * @return GoogleCloudConnectorsV1AuthConfig
+   */
+  public function getListenerAuthConfig()
+  {
+    return $this->listenerAuthConfig;
   }
   /**
    * @param bool

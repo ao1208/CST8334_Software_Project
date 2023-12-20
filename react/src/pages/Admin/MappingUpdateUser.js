@@ -5,6 +5,7 @@ import { BiSearch } from "react-icons/bi";
 import { useParams } from "react-router-dom";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const initialUserMapping = {
     merchant_id: "",
@@ -24,7 +25,7 @@ const MappingUpdateUser = () => {
 
     useEffect(() => {
         // Fetch merchant data from the Laravel API
-        axios.get(`http://127.0.0.1:8000/api/merchant/${merchantId}`)
+        axios.get(`${API_BASE_URL}/merchant/${merchantId}`)
             .then(response => {
                 setCurrentUserMapping(response.data); // Set the merchant data in state
             })
@@ -54,7 +55,7 @@ const MappingUpdateUser = () => {
                 return;
             }
 
-            const response = await fetch(`http://127.0.0.1:8000/api/merchant/${merchantId}`, {
+            const response = await fetch(`${API_BASE_URL}/merchant/${merchantId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

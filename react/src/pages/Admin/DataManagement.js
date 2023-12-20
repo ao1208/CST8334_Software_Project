@@ -6,6 +6,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import axios from 'axios';
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const DataManagement = () => {
 
@@ -13,7 +14,7 @@ const DataManagement = () => {
 
     // Fetch data from the Laravel API
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/data')
+        axios.get(`${API_BASE_URL}/data`)
             .then((response) => {
                 setData(response.data);
             })
@@ -70,7 +71,7 @@ const DataManagement = () => {
     // Fetch data based on the selected date range from Laravel API
     const handleDateRangeChange = async () => {
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/data-search?date-range=${selectedDateRange}`);
+            const response = await axios.get(`${API_BASE_URL}/data-search?date-range=${selectedDateRange}`);
             setData(response.data);
             if (response.data.length === 0) {
                 alert('No records found.');
@@ -99,7 +100,7 @@ const DataManagement = () => {
             alert(`Invalid dateTo. dateTo shouldn't be empty or smaller than this year. ${firstDateOfCurrentYear}`);
         }
         // Make a request to the Google Sheets API endpoint
-        axios.get(`http://127.0.0.1:8000/api/google-spreadsheet-api?dateFrom=${dateFrom}&dateTo=${dateTo}`)
+        axios.get(`${API_BASE_URL}/google-spreadsheet-api?dateFrom=${dateFrom}&dateTo=${dateTo}`)
             .then(response => {
                 // Handle the response data as needed
                 console.log('Data imported successfully:', response.data);
@@ -112,7 +113,7 @@ const DataManagement = () => {
     // Handle delete functionality
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/data/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/data/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

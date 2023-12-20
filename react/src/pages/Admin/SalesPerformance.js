@@ -4,13 +4,14 @@ import { salesPerformanceTableHeader } from "../../utils/TableColumnMapping";
 import { Link } from "react-router-dom";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const SalesPerformance = () => {
 
     const [data, setPerformanceData] = useState([]);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [numOfPages, setNumOfPages] = useState(1);
-    const [apiUrl, setApiUrl] = useState('http://127.0.0.1:8000/api/performance');
+    const [apiUrl, setApiUrl] = useState(`${API_BASE_URL}/performance`);
 
     useEffect(() => {
         const fetchRecords = async () => {

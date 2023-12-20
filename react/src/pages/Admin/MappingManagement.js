@@ -11,12 +11,13 @@ import { Link } from "react-router-dom";
 import { userMappingTableHeader } from "../../utils/TableColumnMapping";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const MappingManagement = () => {
 
     const [mappingData, setMappingData] = useState([]);
     const [deleted, setDeleted] = useState(false);
-    const [apiUrl, setApiUrl] = useState('http://127.0.0.1:8000/api/merchant');
+    const [apiUrl, setApiUrl] = useState(`${API_BASE_URL}/merchant`);
 
     useEffect(() => {
         const fetchRecords = async () => {
@@ -43,7 +44,7 @@ const MappingManagement = () => {
 
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`http://127.0.0.1:8000/api/merchant/${merchantId}`);
+                const response = await axios.delete(`${API_BASE_URL}/merchant/${merchantId}`);
                 if (response.status === 200) {
                     console.log('Record deleted successfully');
                     setDeleted(true);

@@ -11,6 +11,7 @@ import { formatNumber } from "../../utils/FormatNumber";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const sales_payout_data = [
   {
@@ -60,7 +61,7 @@ const SalesCommission = () => {
         // Retrieve the user ID from the cookie
         const storedUserId = Cookies.get('userId');
         setUserId(storedUserId);
-        setApiUrl(`http://127.0.0.1:8000/api/payout-search/${userId}`);
+        setApiUrl(`${API_BASE_URL}/payout-search/${userId}`);
     }, [userId]);
 
     useEffect(() => {

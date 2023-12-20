@@ -3,6 +3,7 @@ import FormRow from "../../components/FormRow";
 import {Link} from "react-router-dom";
 import {styled} from "styled-components";
 import axios from "axios";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const initialUser = {
     sales_id: "",
@@ -43,7 +44,7 @@ const CreateUser = () => {
         e.preventDefault();
         try {
             const response = await axios.post(
-                'http://127.0.0.1:8000/api/user',
+                `${API_BASE_URL}/user`,
                 currentUser, // pass the data directly
                 {
                     headers: {
@@ -104,16 +105,16 @@ const CreateUser = () => {
                         value={currentUser ? currentUser.sales_id : null}
                         onChange={handleChange}
                     />
-                    <button
-                        className="verifyBtn"
-                        style={{backgroundColor: currentUser ? "#624DE3" : "#9E9E9E"}}
-                        disabled={!!currentUser}
-                        onClick={() =>
-                            window.alert("Function need to implement")
-                        }
-                    >
-                        verify ID
-                    </button>
+                    {/*<button*/}
+                    {/*    className="verifyBtn"*/}
+                    {/*    style={{backgroundColor: currentUser ? "#624DE3" : "#9E9E9E"}}*/}
+                    {/*    disabled={!!currentUser}*/}
+                    {/*    onClick={() =>*/}
+                    {/*        window.alert("Function need to implement")*/}
+                    {/*    }*/}
+                    {/*>*/}
+                    {/*    verify ID*/}
+                    {/*</button>*/}
                 </div>
 
                 <FormRow

@@ -5,6 +5,7 @@ import {performanceColumnMappings} from "../../utils/TableColumnMapping";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import Cookies from 'js-cookie';
+import API_BASE_URL from "../../utils/apiConfig";
 
 const SalesPerformance = () => {
     const [userId, setUserId] = useState(null);
@@ -20,7 +21,7 @@ const SalesPerformance = () => {
         // Retrieve the user ID from the cookie
         const storedUserId = Cookies.get('userId');
         setUserId(storedUserId);
-        setApiUrl(`http://127.0.0.1:8000/api/sales-performance/${userId}`);
+        setApiUrl(`${API_BASE_URL}/sales-performance/${userId}`);
     }, [userId]);
 
     useEffect(() => {

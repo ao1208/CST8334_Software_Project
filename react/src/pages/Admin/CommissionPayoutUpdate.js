@@ -5,6 +5,7 @@ import {styled} from "styled-components";
 import axios from "axios";
 import debounce from 'lodash/debounce';
 import {formatNumber} from "../../utils/FormatNumber";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const initialRecord = {
     salesID: "",
@@ -30,7 +31,7 @@ const CommissionPayoutUpdate = () => {
     const handleSalesId = async (salesId) => {
 
         try {
-            const userDetailsResponse = await axios.get(`http://127.0.0.1:8000/api/user/${salesId}`);
+            const userDetailsResponse = await axios.get(`${API_BASE_URL}/user/${salesId}`);
             const userData = userDetailsResponse.data;
             console.log("path" , userDetailsResponse);
             console.log("data",userData);
@@ -81,7 +82,7 @@ const CommissionPayoutUpdate = () => {
 
     useEffect(() => {
 
-        axios.get(`http://127.0.0.1:8000/api/payout/${recordId}`)
+        axios.get(`${API_BASE_URL}/payout/${recordId}`)
             .then(response => {
                 console.log("record id is " + recordId);
                 setCurrentRecord(response.data);
@@ -143,7 +144,7 @@ const CommissionPayoutUpdate = () => {
             }
 
             console.log('Request Body:', JSON.stringify(requestBody));
-            const response = await fetch(`http://127.0.0.1:8000/api/payout/${recordId}`, {
+            const response = await fetch(`${API_BASE_URL}/payout/${recordId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

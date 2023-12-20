@@ -121,6 +121,7 @@ class Compute extends \Google\Service
   public $regionTargetHttpsProxies;
   public $regionTargetTcpProxies;
   public $regionUrlMaps;
+  public $regionZones;
   public $regions;
   public $reservations;
   public $resourcePolicies;
@@ -128,6 +129,7 @@ class Compute extends \Google\Service
   public $routes;
   public $securityPolicies;
   public $serviceAttachments;
+  public $snapshotSettings;
   public $snapshots;
   public $sslCertificates;
   public $sslPolicies;
@@ -9316,7 +9318,26 @@ class Compute extends \Google\Service
         'publicAdvertisedPrefixes',
         [
           'methods' => [
-            'delete' => [
+            'announce' => [
+              'path' => 'projects/{project}/global/publicAdvertisedPrefixes/{publicAdvertisedPrefix}/announce',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'project' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'publicAdvertisedPrefix' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'requestId' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'delete' => [
               'path' => 'projects/{project}/global/publicAdvertisedPrefixes/{publicAdvertisedPrefix}',
               'httpMethod' => 'DELETE',
               'parameters' => [
@@ -9413,6 +9434,25 @@ class Compute extends \Google\Service
                   'type' => 'string',
                 ],
               ],
+            ],'withdraw' => [
+              'path' => 'projects/{project}/global/publicAdvertisedPrefixes/{publicAdvertisedPrefix}/withdraw',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'project' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'publicAdvertisedPrefix' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'requestId' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
             ],
           ]
         ]
@@ -9457,6 +9497,30 @@ class Compute extends \Google\Service
                   'type' => 'boolean',
                 ],
                 'serviceProjectNumber' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'announce' => [
+              'path' => 'projects/{project}/regions/{region}/publicDelegatedPrefixes/{publicDelegatedPrefix}/announce',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'project' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'region' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'publicDelegatedPrefix' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'requestId' => [
                   'location' => 'query',
                   'type' => 'string',
                 ],
@@ -9562,6 +9626,30 @@ class Compute extends \Google\Service
             ],'patch' => [
               'path' => 'projects/{project}/regions/{region}/publicDelegatedPrefixes/{publicDelegatedPrefix}',
               'httpMethod' => 'PATCH',
+              'parameters' => [
+                'project' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'region' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'publicDelegatedPrefix' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'requestId' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'withdraw' => [
+              'path' => 'projects/{project}/regions/{region}/publicDelegatedPrefixes/{publicDelegatedPrefix}/withdraw',
+              'httpMethod' => 'POST',
               'parameters' => [
                 'project' => [
                   'location' => 'path',
@@ -13702,6 +13790,51 @@ class Compute extends \Google\Service
           ]
         ]
     );
+    $this->regionZones = new Compute\Resource\RegionZones(
+        $this,
+        $this->serviceName,
+        'regionZones',
+        [
+          'methods' => [
+            'list' => [
+              'path' => 'projects/{project}/regions/{region}/zones',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'project' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'region' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'maxResults' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'orderBy' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'returnPartialSuccess' => [
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
     $this->regions = new Compute\Resource\Regions(
         $this,
         $this->serviceName,
@@ -15162,6 +15295,44 @@ class Compute extends \Google\Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->snapshotSettings = new Compute\Resource\SnapshotSettings(
+        $this,
+        $this->serviceName,
+        'snapshotSettings',
+        [
+          'methods' => [
+            'get' => [
+              'path' => 'projects/{project}/global/snapshotSettings',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'project' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'patch' => [
+              'path' => 'projects/{project}/global/snapshotSettings',
+              'httpMethod' => 'PATCH',
+              'parameters' => [
+                'project' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'requestId' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'updateMask' => [
+                  'location' => 'query',
+                  'type' => 'string',
                 ],
               ],
             ],

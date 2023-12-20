@@ -21,6 +21,9 @@ use App\Http\Controllers\GoogleSheetController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::group(['middleware' => 'cors'], function () {
+
+
 // Authentication routes
 Route::post('api/login', [LoginController::class, 'authenticate']);
 // Dashboard routes
@@ -68,6 +71,9 @@ Route::get('api/google-spreadsheet-api', [GoogleSheetController::class, 'downloa
 Route::get('api/data', [DataManagementController::class, 'findAll']);
 Route::put('api/data/{id}', [DataManagementController::class, 'update']);
 Route::get('api/data-search', [DataManagementController::class, 'findByDate']);
+
+});
+
 //// Welcome route
 //Route::get('/', function () {
 //    return view('welcome');

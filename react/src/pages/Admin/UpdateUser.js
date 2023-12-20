@@ -3,6 +3,7 @@ import {useState, useEffect} from "react";
 import axios from 'axios';
 import FormRow from "../../components/FormRow";
 import {styled} from "styled-components";
+import API_BASE_URL from "../../utils/apiConfig";
 
 const initialUser = {
     id: "",
@@ -30,7 +31,7 @@ const UpdateUser = () => {
 
     useEffect(() => {
         // Fetch user data from the Laravel API
-        axios.get(`http://127.0.0.1:8000/api/user/${userId}`)
+        axios.get(`${API_BASE_URL}/user/${userId}`)
             .then(response => {
                 setCurrentUser(response.data); // Set the user data in state
             })
@@ -52,7 +53,7 @@ const UpdateUser = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/user/${userId}`, {
+            const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ const UpdateUser = () => {
             <h1>User Management - Update</h1>
 
             <form onSubmit={handleSubmit}>
-                {/*<form action="http://127.0.0.1:8000/api/user" className="form" method='POST'>*/}
+                {/*<form action=`${API_BASE_URL}/user` className="form" method='POST'>*/}
                 {/*<div className="img-container">*/}
                 {/*  {user ? (*/}
                 {/*    <img src={currentUser.image} alt="user-profile" className="img" />*/}
@@ -110,14 +111,14 @@ const UpdateUser = () => {
                         value={currentUser ? currentUser.sales_id : null}
                         disabled
                     />
-                    <button
-                        className="verifyBtn"
-                        style={{backgroundColor: currentUser ? "#9E9E9E" : ""}}
-                        disabled={!!currentUser}
-                        onClick={() => window.alert("Function need to implement")}
-                    >
-                        verify ID
-                    </button>
+                    {/*<button*/}
+                    {/*    className="verifyBtn"*/}
+                    {/*    style={{backgroundColor: currentUser ? "#9E9E9E" : ""}}*/}
+                    {/*    disabled={!!currentUser}*/}
+                    {/*    onClick={() => window.alert("Function need to implement")}*/}
+                    {/*>*/}
+                    {/*    verify ID*/}
+                    {/*</button>*/}
                 </div>
 
                 <FormRow

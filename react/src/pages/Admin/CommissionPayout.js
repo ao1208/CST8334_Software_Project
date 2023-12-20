@@ -17,13 +17,14 @@ import {PiNotePencil} from "react-icons/pi";
 import {Pagination} from "../../components";
 import React, {useState, useEffect} from "react";
 import axios from "axios";
+import API_BASE_URL from "../../utils/apiConfig";
 
 
 const CommissionPayout = () => {
 
     const [data, setData] = useState([]);
     const [deleted, setDeleted] = useState(false);
-    const [apiUrl, setApiUrl] = useState('http://127.0.0.1:8000/api/payout');
+    const [apiUrl, setApiUrl] = useState(`${API_BASE_URL}/payout`);
     const [totalCommission, setTotalCommission] = useState(0);
     const [totalPayout, setTotalPayout] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -59,7 +60,7 @@ const CommissionPayout = () => {
         const confirmDelete = window.confirm('Are you sure you want to delete this record?');
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`http://127.0.0.1:8000/api/payout/${recordId}`);
+                const response = await axios.delete(`${API_BASE_URL}/payout/${recordId}`);
                 console.log('Record deleted successfully', response.data);
                 setDeleted(true);
             } catch (error) {
