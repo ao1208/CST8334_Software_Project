@@ -14,6 +14,7 @@ import {
 import { formatNumber } from "../utils/FormatNumber";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import API_BASE_URL from "../utils/apiConfig";
 
 const CommissionChart = ({ dateRange, salesPerson}) => {
 
@@ -22,7 +23,7 @@ const CommissionChart = ({ dateRange, salesPerson}) => {
 
     // Fetch total balance data from the Laravel API
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/dashboard-total-balance')
+        axios.get(`${API_BASE_URL}/dashboard-total-balance`)
             .then((response) => {
                 setTotal(response.data.total);
                 setIncreaseRate(response.data.increaseRate);
@@ -38,7 +39,7 @@ const CommissionChart = ({ dateRange, salesPerson}) => {
 
     // Fetch monthly commission data from the Laravel API
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/dashboard-monthly-commission')
+        axios.get(`${API_BASE_URL}/dashboard-monthly-commission`)
             .then((response) => {
                 const first12Records = response.data.slice(0, 12);
                 const remainRecords = response.data.slice(12);
@@ -63,7 +64,7 @@ const CommissionChart = ({ dateRange, salesPerson}) => {
 
     // Fetch transaction data from the Laravel API
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/dashboard-transaction')
+        axios.get(`${API_BASE_URL}/dashboard-transaction`)
             .then((response) => {
                 // Transform the object into an array of objects
                 const transformedData = Object.entries(response.data).map(([name, values]) => ({
@@ -81,9 +82,9 @@ const CommissionChart = ({ dateRange, salesPerson}) => {
     const handleDateORSalespersonChange = async () => {
         try {
             // Build the URLs with optional parameters
-            let url_total_balance = `http://127.0.0.1:8000/api/dashboard-total-balance`;
-            let url_monthly_commission = `http://127.0.0.1:8000/api/dashboard-monthly-commission`;
-            let url_transaction = `http://127.0.0.1:8000/api/dashboard-transaction`;
+            let url_total_balance = `${API_BASE_URL}/dashboard-total-balance`;
+            let url_monthly_commission = `${API_BASE_URL}/dashboard-monthly-commission`;
+            let url_transaction = `${API_BASE_URL}/dashboard-transaction`;
 
             if (dateRange) { url_transaction += `?date-range=${dateRange}`; }
             if (salesPerson) { // If dateRange is also present, add '&' before sales-person

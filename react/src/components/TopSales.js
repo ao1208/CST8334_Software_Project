@@ -2,6 +2,7 @@ import styled from "styled-components";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import {formatNumber} from "../utils/FormatNumber";
+import API_BASE_URL from "../utils/apiConfig";
 
 const TopSales = ({dateRange}) => {
     // State variables for top 10 sales and data date
@@ -10,7 +11,7 @@ const TopSales = ({dateRange}) => {
 
     // Fetch top sales data from the Laravel API
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/dashboard-top-sales')
+        axios.get(`${API_BASE_URL}/dashboard-top-sales`)
             .then((response) => {
                 // Set data date and transform the object into an array of objects
                 setDataDate(response.data.dataDate.date.substring(0, 7));
@@ -30,7 +31,7 @@ const TopSales = ({dateRange}) => {
 
         try {
             // Fetch top sales data with the specified date range
-            const response = await axios.get(`http://127.0.0.1:8000/api/dashboard-top-sales?date-range=${dateRange}`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard-top-sales?date-range=${dateRange}`);
             const { performances, dataDate} = response.data;
 
             // Check if dataDate is not null before accessing its date property

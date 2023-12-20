@@ -24,7 +24,9 @@ class CommissionPayoutController extends Controller
                 'users.sales_id', 'users.first_name', 'users.last_name',
                 'merchants.merchant_id', 'merchants.DBA_name',
                 'type', 'amount', 'balance', 'comment')
-            ->orderBy('date', 'asc')->orderBy('users.sales_id', 'asc')
+            ->orderBy('commission_payout_records.id', 'asc')
+//            ->orderBy('date', 'asc')
+//            ->orderBy('users.sales_id', 'asc')
             ->paginate($perPage);
 
         $subCommission = 0;
@@ -42,18 +44,6 @@ class CommissionPayoutController extends Controller
 
         return response()->json($payouts);
     }
-
-//    public function getById(Request $request): JsonResponse
-//    {
-//        $id = $request->route('id');
-//
-//        $payout = CommissionPayoutRecord::join('merchants', 'commission_payout_records.merchant_id', '=', 'merchants.merchant_id')
-//            ->join('users', 'merchants.sales_id', '=', 'users.sales_id')
-//            ->where('commission_payout_records.id', '=', $id)
-//            ->first();
-//
-//        return response()->json($payout);
-//    }
 
     public function getById(Request $request): JsonResponse
     {
@@ -77,6 +67,32 @@ class CommissionPayoutController extends Controller
                 ->firstOrFail(); // Use firstOrFail to throw an exception if not found
 
             return response()->json($payout);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Payout not found'], 404);
+        }
+    }
+
+    public function getBalanceById(Request $request): JsonResponse
+    {
+        $id = $request->route('id');
+
+        try {
+            $commission = CommissionPayoutRecord::select(DB::raw('SUM(amount) as totalCommission'))
+                ->where('type', '=', 'Commission')
+                ->where('sales_id', '=', $id)
+                ->groupBy('sales_id')
+                ->first();
+            $payout = CommissionPayoutRecord::select(DB::raw('SUM(amount) as totalPayout'))
+                ->where('type', '=', 'Payout')
+                ->where('sales_id', '=', $id)
+                ->groupBy('sales_id')
+                ->first();
+            // Extract values from objects
+            $totalCommission = $commission ? $commission->totalCommission : 0;
+            $totalPayout = $payout ? $payout->totalPayout : 0;
+            // Calculate balance
+            $balance = $totalCommission - $totalPayout;
+            return response()->json(['currentBalance' => $balance]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Payout not found'], 404);
         }

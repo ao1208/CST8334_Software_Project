@@ -21,8 +21,11 @@ const initialRecord = {
 const CommissionPayoutCreate = () => {
     const [currentRecord, setCurrentRecord] = useState(initialRecord);
     const [salesIdInput, setSalesIdInput] = useState('');
+    const [currentBalance, setCurrentBalance] = useState();
     const debouncedHandleSalesId = debounce(async (salesId) => {
         await handleSalesId(salesId);
+        await handleCurrentBalance(salesId);
+
     }, 500);
 
     const handleSalesId = async (salesId) => {
@@ -59,13 +62,23 @@ const CommissionPayoutCreate = () => {
         } catch (error) {
             console.error('Error checking sales ID existence:', error);
             console.log('Response data:', error.response.data);
-
         }
     };
+
+    const handleCurrentBalance = async (salesId) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/balance/${salesId}`);
+            setCurrentBalance(response.data.currentBalance);
+        } catch (error) {
+            console.error('Error fetching current balance:', error);
+        }
+    }
+
     useEffect(() => {
         if (salesIdInput) {
             const timeoutId = setTimeout(() => {
                 handleSalesId(salesIdInput);
+                handleCurrentBalance(salesIdInput);
             }, 1000);
 
             return () => clearTimeout(timeoutId);
@@ -89,7 +102,6 @@ const CommissionPayoutCreate = () => {
             return;
         }
         if (name === 'amount') {
-            const currentBalance = parseFloat(currentRecord.balance);
             const payout = parseFloat(value);
             if (!isNaN(currentBalance) && !isNaN(payout)) {
                 const balanceAfterPayout = currentBalance - payout;
@@ -114,8 +126,6 @@ const CommissionPayoutCreate = () => {
             }));
         }
     };
-
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -144,8 +154,6 @@ const CommissionPayoutCreate = () => {
             }
         } catch (error) {
             console.error('Error:', error);
-
-
         }
     };
 
@@ -155,21 +163,12 @@ const CommissionPayoutCreate = () => {
             <h1>commission payout - Create</h1>
 
             <form onSubmit={handleSubmit}>
-
-
                 <FormRow
                     labelName="sales ID"
                     name="sales_id"
                     value={currentRecord ? currentRecord.sales_id : null}
                     onChange={handleChange}
-
                 />
-                {/*<FormRow*/}
-                {/*    labelName="Merchant Id"*/}
-                {/*    name="merchant_id"*/}
-                {/*    value={currentRecord ? currentRecord.merchant_id : null}*/}
-                {/*    onChange={handleChange}*/}
-                {/*/>*/}
                 <FormRow
                     type="date"
                     labelName="date"
@@ -177,7 +176,6 @@ const CommissionPayoutCreate = () => {
                     value={currentRecord ? currentRecord.date : null}
                     onChange={handleChange}
                 />
-
                 <FormRow
                     labelName="first name"
                     name="first_name"
@@ -197,8 +195,9 @@ const CommissionPayoutCreate = () => {
                 <FormRow
                     labelName="current balance"
                     name="balance"
-                    value={currentRecord ? currentRecord.balance : null}
-                    onChange={handleChange}
+                    value={currentBalance !== null ? currentBalance : ''}
+                    readOnly
+                    disabled
                 />
                 <FormRow
                     labelName="pay out"
@@ -213,7 +212,6 @@ const CommissionPayoutCreate = () => {
                     readOnly={true}
                     disabled={true}
                 />
-
                 <div className="comment">
                     <FormRow
                         labelName="comment"

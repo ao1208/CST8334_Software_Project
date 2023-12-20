@@ -9,6 +9,7 @@ import axios from "axios";
 import salesPerformance from "../pages/Admin/SalesPerformance";
 import CommissionPayout from "../pages/Admin/CommissionPayout";
 import {UserManagementForm} from "./index";
+import API_BASE_URL from "../utils/apiConfig";
 
 const SalesSearch = ({setApiUrl, userId}) => {
     const [selectPeriod, setSelectPeriod] = useState("");
@@ -41,7 +42,7 @@ const SalesSearch = ({setApiUrl, userId}) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        let url = `http://127.0.0.1:8000/api/payout-search/${userId}`;
+        let url = `${API_BASE_URL}/payout-search/${userId}`;
 
         if (selectPeriod) {
             if (selectPeriod.toLowerCase() !== "custom") {
@@ -58,7 +59,7 @@ const SalesSearch = ({setApiUrl, userId}) => {
             url += url.includes('?') ? `&keyword=${search}` : `?keyword=${search}`;
         }
         if (!selectPeriod && !startDate && !endDate && !search) {
-            setApiUrl(`http://127.0.0.1:8000/api/payout-search/${userId}`);
+            setApiUrl(`${API_BASE_URL}/payout-search/${userId}`);
         }
         setApiUrl(url);
     };

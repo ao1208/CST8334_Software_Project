@@ -2,6 +2,7 @@ import { styled } from "styled-components";
 import { useState } from "react";
 import FormRow from "./FormRow";
 import { Link } from "react-router-dom";
+import API_BASE_URL from "../utils/apiConfig";
 
 const initialUser = {
   salesID: "",
@@ -27,7 +28,7 @@ const CommissionPayoutForm = ({ formType, user }) => {
     <Wrapper className="dashboard-container">
       <h1>commission payout - {formType}</h1>
       {/* form action need to implement */}
-      <form action="http://127.0.0.1:8000/api/payout" className="form" method='POST'>
+      <form action={`${API_BASE_URL}/payout`} className="form" method='POST'>
         <FormRow
           labelName="sales ID"
           name="sales_id"

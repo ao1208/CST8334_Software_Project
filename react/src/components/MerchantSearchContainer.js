@@ -3,16 +3,17 @@ import { FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from "../utils/apiConfig";
 const MerchantSearchContainer = ({ setApiUrl,link, text }) => {
   const [search, setSearch] = useState("");
 
   const handleSubmit = () => {
-    let url = 'http://127.0.0.1:8000/api/merchant-search';
+    let url = `${API_BASE_URL}/merchant-search`;
 
     if (search) {
       url += `?keyword=${search}`;
     }else {
-      setApiUrl('http://127.0.0.1:8000/api/merchant'); // Set the default URL if searchTerm is empty
+      setApiUrl(`${API_BASE_URL}/merchant`); // Set the default URL if searchTerm is empty
       return;
     }
 

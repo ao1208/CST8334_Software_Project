@@ -3,6 +3,7 @@ import {BiSearch} from "react-icons/bi";
 import {VscCalendar} from "react-icons/vsc";
 import {useState} from "react";
 import {dateRange} from "../utils/DateRange";
+import API_BASE_URL from "../utils/apiConfig";
 
 const AdminSalesSearch = ({setApiUrl}) => {
     // State variables to manage user inputs
@@ -32,7 +33,7 @@ const AdminSalesSearch = ({setApiUrl}) => {
     };
     // Handle search button
     const handleSearch = () => {
-        let url = 'http://127.0.0.1:8000/api/performance-search'
+        let url = `${API_BASE_URL}/performance-search`
         if (selectedDateRange) {
             if (selectedDateRange.toLowerCase() !== "custom") {
                 url += url.includes('?') ? `&date-range=${selectedDateRange}` : `?date-range=${selectedDateRange}`;
@@ -48,7 +49,7 @@ const AdminSalesSearch = ({setApiUrl}) => {
             url += url.includes('?') ? `&keyword=${keyword}` : `?keyword=${keyword}`;
         }
         if (!selectedDateRange && !startDate && !endDate && !keyword) {
-            setApiUrl('http://127.0.0.1:8000/api/performance');
+            setApiUrl(`${API_BASE_URL}/performance`);
         }
         setApiUrl(url);
     }

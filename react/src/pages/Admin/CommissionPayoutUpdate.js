@@ -175,12 +175,6 @@ const CommissionPayoutUpdate = () => {
                     onChange={handleChange}
                 />
                 <FormRow
-                    labelName="Merchant Id"
-                    name="merchant_id"
-                    value={currentRecord ? currentRecord.merchant_id : null}
-                    onChange={handleChange}
-                />
-                <FormRow
                     type="date"
                     labelName="date"
                     name="date"

@@ -62,6 +62,7 @@ Route::get('api/payout/{id}', [CommissionPayoutController::class, 'getById']);
 Route::post('api/payout', [CommissionPayoutController::class, 'create']);
 Route::put('api/payout/{id}', [CommissionPayoutController::class, 'update']);
 Route::delete('api/payout/{id}', [CommissionPayoutController::class, 'delete']);
+Route::get('api/balance/{id}', [CommissionPayoutController::class, 'getBalanceById']);
 Route::get('api/payout-search', [CommissionPayoutController::class, 'findByDateAndKeyword']);
 // Commission payout routes-Salesperson
 Route::get('api/payout-search/{userId}', [CommissionPayoutController::class, 'findSalespersonByDateAndKeyword']);
